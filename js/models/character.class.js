@@ -66,34 +66,61 @@ class Character extends MovableObject {
 
   constructor() {
     super();
+    this.initializeCharacter();
+    this.loadCharacterImages();
+    this.startCharacter();
+  }
+
+  initializeCharacter() {
+    this.width = 125;
+    this.height = 350;
+    this.y = 100;
+  }
+
+  loadCharacterImages() {
     this.loadImage('img_pollo_locco/img/2_character_pepe/2_walk/W-21.png');
-    this.applyGravity();
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);
     this.loadImages(this.IMAGES_DEAD);
     this.loadImages(this.IMAGES_HURT);
     this.loadImages(this.IMAGES_IDLE);
     this.loadImages(this.IMAGES_IDLE_LONG);
+  }
+
+  startCharacter() {
+    this.applyGravity();
     this.animate();
-    this.width = 125;
-    this.height = 350;
-    this.y = 100;
   }
 
   isColliding(mo) {
-    let thisOffsets = this.getHitboxOffsets();
-    let moOffsets = mo.getHitboxOffsets();
+    let thisBox = this.getHitbox();
+    let moBox = mo.getHitbox ? mo.getHitbox() : this.calculateHitbox(mo);
+    return (
+      thisBox.x + thisBox.width > moBox.x &&
+      thisBox.y + thisBox.height > moBox.y &&
+      thisBox.x < moBox.x + moBox.width &&
+      thisBox.y < moBox.y + moBox.height
+    );
+  }
 
-    let thisX = this.x + thisOffsets.xWidth;
-    let thisY = this.y + thisOffsets.yTop;
-    let thisWidth = this.width - 2 * thisOffsets.xWidth;
-    let thisHeight = this.height - thisOffsets.yTop - thisOffsets.yBottom;
+  calculateHitbox(obj) {
+    let offsets = obj.getHitboxOffsets ? obj.getHitboxOffsets() : { xWidth: 0, yTop: 0, yBottom: 0 };
+    return {
+      x: obj.x + offsets.xWidth,
+      y: obj.y + offsets.yTop,
+      width: obj.width - 2 * offsets.xWidth,
+      height: obj.height - offsets.yTop - offsets.yBottom,
+    };
+  }
 
-    let moX = mo.x + moOffsets.xWidth;
-    let moY = mo.y + moOffsets.yTop;
-    let moWidth = mo.width - 2 * moOffsets.xWidth;
-    let moHeight = mo.height - moOffsets.yTop - moOffsets.yBottom;
-    return thisX + thisWidth > moX && thisY + thisHeight > moY && thisX < moX + moWidth && thisY < moY + moHeight;
+  getHitbox() {
+    let offsets = this.getHitboxOffsets();
+    return {
+      x: this.x + offsets.xWidth,
+      y: this.y + offsets.yTop,
+      width: this.width - 2 * offsets.xWidth,
+      height: this.height - offsets.yTop - offsets.yBottom,
+    };
   }
 
   getHitboxOffsets() {
@@ -166,26 +193,41 @@ class Character extends MovableObject {
 
   handleKeyboardInput() {
     let moved = false;
+    moved = this.handleRightMovement() || moved;
+    moved = this.handleLeftMovement() || moved;
+    moved = this.handleJumpInput() || moved;
+    moved = this.handleThrowInput() || moved;
+    return moved;
+  }
 
+  handleRightMovement() {
     if (this.world.keyboard.Right && this.x < this.world.level.level_end_x) {
       this.moveRight();
       this.OtherDirection = false;
-      moved = true;
+      return true;
     }
+    return false;
+  }
+
+  handleLeftMovement() {
     if (this.world.keyboard.Left && this.x > 0) {
       this.moveLeft();
       this.OtherDirection = true;
-      moved = true;
+      return true;
     }
+    return false;
+  }
+
+  handleJumpInput() {
     if (this.world.keyboard.Space && !this.isAboveGround()) {
       this.jump();
-      moved = true;
+      return true;
     }
-    if (this.world.keyboard.F) {
-      moved = true;
-    }
+    return false;
+  }
 
-    return moved;
+  handleThrowInput() {
+    return this.world.keyboard.F;
   }
 
   updateMovementTimer(moved) {

@@ -50,7 +50,6 @@ class World {
   pauseGame() {
     this.pauseWorldIntervals();
     this.pauseAllGameObjects();
-    console.log('⏸️ Game paused');
   }
 
   pauseWorldIntervals() {
@@ -70,7 +69,6 @@ class World {
     this.resumeWorldIntervals();
     this.resumeAllGameObjects();
     this.draw();
-    console.log('▶️ Game resumed');
   }
 
   resumeWorldIntervals() {
@@ -124,18 +122,24 @@ class World {
     let currentTime = new Date().getTime();
     let timeSinceLastThrow = currentTime - this.lastThrowTime;
 
-    if (this.keyboard.F && this.collectedBottles > 0 && timeSinceLastThrow > 300) {
-      let bottle = new ThrowableObject(this.character.x + 50, this.character.y + 50);
-      this.throwableObjects.push(bottle);
-      this.collectedBottles--;
-      this.lastThrowTime = currentTime;
-      let percentage = Math.min(this.collectedBottles * 20, 100);
-      this.statusBarBottle.setPercentage(percentage);
-      console.log('Bottle thrown! Remaining:', this.collectedBottles, '/ 5');
+    if (this.canThrowBottle(timeSinceLastThrow)) {
+      this.throwBottle(currentTime);
     } else if (this.keyboard.F && this.collectedBottles === 0 && timeSinceLastThrow > 300) {
-      console.log('No bottles to throw! Collect bottles first.');
       this.lastThrowTime = currentTime;
     }
+  }
+
+  canThrowBottle(timeSinceLastThrow) {
+    return this.keyboard.F && this.collectedBottles > 0 && timeSinceLastThrow > 300;
+  }
+
+  throwBottle(currentTime) {
+    let bottle = new ThrowableObject(this.character.x + 50, this.character.y + 50);
+    this.throwableObjects.push(bottle);
+    this.collectedBottles--;
+    this.lastThrowTime = currentTime;
+    let percentage = Math.min(this.collectedBottles * 20, 100);
+    this.statusBarBottle.setPercentage(percentage);
   }
 
   checkCollisionsforCoinsStatusBar() {
@@ -148,7 +152,6 @@ class World {
         });
         let percentage = Math.min(collectedCount * 20, 100);
         this.statusBarCoin.setPercentage(percentage);
-        console.log('coins collected:', collectedCount);
       }
     });
   }
@@ -160,7 +163,6 @@ class World {
         this.collectedBottles++;
         let percentage = Math.min(this.collectedBottles * 20, 100);
         this.statusBarBottle.setPercentage(percentage);
-        console.log('✅ Bottle collected! Total:', this.collectedBottles, '/ 5');
       }
     });
   }
@@ -175,11 +177,9 @@ class World {
         this.character.hit();
         this.character.energy -= 15;
         this.statusBarHealth.setPercentage(this.character.energy);
-        console.log('💔 Character hit! Energy:', this.character.energy);
       }
       if (this.character.energy <= 0 && !this.character.isdead) {
         this.character.isdead = true;
-        console.log('☠️ Character is dead');
         clearStoppableInterval(this.collisionInterval);
       }
     });
@@ -199,7 +199,6 @@ class World {
             }
           } else if (enemy.die) {
             enemy.die();
-            console.log('🎯 Bottle hit enemy! Enemy killed!');
           }
         }
       });
@@ -218,7 +217,6 @@ class World {
         let timeSinceDeath = (new Date().getTime() - enemy.deadTime) / 1000;
         if (timeSinceDeath > 1) {
           this.levelCompleted = true;
-          console.log('🎉 Level completed! Endboss defeated!');
         }
       }
     });

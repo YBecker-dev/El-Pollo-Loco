@@ -9,21 +9,34 @@ class Coin extends CollectableObject {
   }
 
   isColliding(mo) {
-    // Coin-Hitbox Offsets
-    let thisOffsets = this.getHitboxOffsets();
-    let moOffsets = mo.getHitboxOffsets();
+    let thisBox = this.getHitbox();
+    let moBox = mo.getHitbox ? mo.getHitbox() : this.calculateHitbox(mo);
+    return (
+      thisBox.x + thisBox.width > moBox.x &&
+      thisBox.y + thisBox.height > moBox.y &&
+      thisBox.x < moBox.x + moBox.width &&
+      thisBox.y < moBox.y + moBox.height
+    );
+  }
 
-    let thisX = this.x + thisOffsets.xWidth;
-    let thisY = this.y + thisOffsets.yTop;
-    let thisWidth = this.width - 2 * thisOffsets.xWidth;
-    let thisHeight = this.height - thisOffsets.yTop - thisOffsets.yBottom;
+  calculateHitbox(obj) {
+    let offsets = obj.getHitboxOffsets ? obj.getHitboxOffsets() : { xWidth: 0, yTop: 0, yBottom: 0 };
+    return {
+      x: obj.x + offsets.xWidth,
+      y: obj.y + offsets.yTop,
+      width: obj.width - 2 * offsets.xWidth,
+      height: obj.height - offsets.yTop - offsets.yBottom,
+    };
+  }
 
-    let moX = mo.x + moOffsets.xWidth;
-    let moY = mo.y + moOffsets.yTop;
-    let moWidth = mo.width - 2 * moOffsets.xWidth;
-    let moHeight = mo.height - moOffsets.yTop - moOffsets.yBottom;
-
-    return thisX + thisWidth > moX && thisY + thisHeight > moY && thisX < moX + moWidth && thisY < moY + moHeight;
+  getHitbox() {
+    let offsets = this.getHitboxOffsets();
+    return {
+      x: this.x + offsets.xWidth,
+      y: this.y + offsets.yTop,
+      width: this.width - 2 * offsets.xWidth,
+      height: this.height - offsets.yTop - offsets.yBottom,
+    };
   }
 
   getHitboxOffsets() {

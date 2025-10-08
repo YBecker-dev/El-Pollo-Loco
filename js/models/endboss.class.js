@@ -56,17 +56,23 @@ class Endboss extends MovableObject {
 
   constructor() {
     super();
-    this.loadImage(this.IMAGES_WALKING[0]);
+    this.loadEndbossImages();
+    this.initializeEndboss();
+  }
 
+  loadEndbossImages() {
+    this.loadImage(this.IMAGES_WALKING[0]);
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_ALERT);
     this.loadImages(this.IMAGES_ATTACK);
     this.loadImages(this.IMAGES_HURT);
     this.loadImages(this.IMAGES_DEAD);
+  }
 
-    this.animate();
+  initializeEndboss() {
     this.x = 4000;
     this.speed = 0.5;
+    this.animate();
   }
 
   hit() {
@@ -75,8 +81,6 @@ class Endboss extends MovableObject {
     this.health--;
     this.isHurt = true;
     this.hurtTime = new Date().getTime();
-
-    console.log('🎯 Endboss hit! Health remaining:', this.health, '/ 5');
 
     if (this.health <= 0) {
       this.die();
@@ -90,7 +94,6 @@ class Endboss extends MovableObject {
   die() {
     this.isDead = true;
     this.deadTime = new Date().getTime();
-    console.log('💀 Endboss defeated!');
   }
 
   getCurrentAnimationSet() {
@@ -115,7 +118,6 @@ class Endboss extends MovableObject {
 
       if (distance < 720 && !this.isVisible) {
         this.isVisible = true;
-        console.log('👁️ Endboss is now visible! Starting to move towards player.');
       }
     }
   }
