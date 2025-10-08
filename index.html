@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="de" translate="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Document</title>
+    <script src="js/interval-manager.js"></script>
+    <script src="js/models/drawable-object.class.js"></script>
+    <script src="js/models/status-bar.class.js"></script>
+    <script src="js/models/status-bar-health.class.js"></script>
+    <script src="js/models/status-bar-coin.class.js"></script>
+    <script src="js/models/status-bar-bottle.class.js"></script>
+    <script src="js/models/status-bar-endboss.class.js"></script>
+    <script src="js/models/movable-objects.js"></script>
+    <script src="js/models/keyboard.class.js"></script>
+    <script src="js/models/cloud.class.js"></script>
+    <script src="js/models/character.class.js"></script>
+    <script src="js/models/chicken.class.js"></script>
+    <script src="js/models/world.class.js"></script>
+    <script src="js/models/background.class.js"></script>
+    <script src="js/models/level.class.js"></script>
+    <script src="js/models/throwable-object.class.js"></script>
+    <script src="js/models/endboss.class.js"></script>
+    <script src="js/models/collactable-objects.class.js"></script>
+    <script src="js/models/coin.class.js"></script>
+    <script src="js/models/bottle.class.js"></script>
+    <script src="levels/level1.js"></script>
+    <script src="js/options.js"></script>
+    <script src="js/steering.js"></script>
+    <script src="js/Impressum.js"></script>
+    <script src="js/start.js"></script>
+    <script src="js/game.js"></script>
+  </head>
+  <body onload="initStartScreen()">
+    <h1 id="title">El Pollo Loco</h1>
+
+    <div id="gameContainer">
+      <canvas id="canvas" width="720" height="480"></canvas>
+
+      <div id="menuContainer"></div>
+
+      <div id="pauseOverlay" class="pause-overlay d-none">
+        <button id="continueButton" class="pause-menu-button" onclick="togglePauseMenu()">Continue</button>
+        <button id="backToMenuButton" class="pause-menu-button" onclick="backToMainMenuFromPause()">
+          Back to Menu
+        </button>
+      </div>
+
+      <button id="pauseButton" class="d-none" onclick="togglePause()">Pause</button>
+      <button id="restartButton" class="game-is-over-button d-none" onclick="restartGame()">Restart</button>
+      <button id="mainMenuButton" class="game-is-over-button d-none" onclick="backToMainMenu()">Back to Menu</button>
+
+      <div id="mobileControls" class="mobile-controls d-none">
+        <div class="mobile-controls-left">
+          <button id="btnLeft" class="mobile-btn">←</button>
+          <button id="btnRight" class="mobile-btn">→</button>
+        </div>
+        <div class="mobile-controls-right">
+          <button id="btnJump" class="mobile-btn">↑</button>
+          <button id="btnThrow" class="mobile-btn">↷</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="orientationWarning" class="orientation-warning">
+      <div class="orientation-content">
+        <div class="orientation-icon">
+          <img src="/img_pollo_locco/img/rotate_phone/rotate_phone.webp" alt="Rotate Device" />
+        </div>
+        <h2 class="orientation-text">ROTATE DEVICE</h2>
+        <p class="orientation-subtext">Please turn your device to play El Pollo Loco</p>
+      </div>
+    </div>
+
+  </body>
+</html>
