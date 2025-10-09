@@ -1,9 +1,11 @@
 class World {
   character = new Character();
-  enemies = level1.enemies;
+  enemies;
   gameOverImage = new Image();
   youWinImage = new Image();
-  level = level1;
+  muteImage = new Image();
+  volumeImage = new Image();
+  level;
   camera_x = 0;
   canvas;
   ctx;
@@ -28,6 +30,8 @@ class World {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.keyboard = keyboard;
+    this.level = level1;
+    this.enemies = level1.enemies;
     this.character.world = this;
     this.draw();
     this.setWorld();
@@ -36,6 +40,8 @@ class World {
     this.runCollectablesCheck();
     this.gameOverImage.src = 'img_pollo_locco/img/9_intro_outro_screens/game_over/game over!.png';
     this.youWinImage.src = 'img_pollo_locco/img/You won, you lost/You Win A.png';
+    this.muteImage.src = 'img_pollo_locco/img/homescreen-icons/mute.png';
+    this.volumeImage.src = 'img_pollo_locco/img/homescreen-icons/volume.png';
   }
 
   togglePause() {
@@ -50,6 +56,7 @@ class World {
   pauseGame() {
     this.pauseWorldIntervals();
     this.pauseAllGameObjects();
+    soundManager.pauseGame();
   }
 
   pauseWorldIntervals() {
@@ -68,6 +75,7 @@ class World {
   resumeGame() {
     this.resumeWorldIntervals();
     this.resumeAllGameObjects();
+    soundManager.resumeGame();
     this.draw();
   }
 
@@ -130,12 +138,13 @@ class World {
   }
 
   canThrowBottle(timeSinceLastThrow) {
-    return this.keyboard.F && this.collectedBottles > 0 && timeSinceLastThrow > 300;
+    return this.keyboard.F && this.collectedBottles > 0 && timeSinceLastThrow > 300 && !this.character.isHurt();
   }
 
   throwBottle(currentTime) {
     let bottle = new ThrowableObject(this.character.x + 50, this.character.y + 50);
     this.throwableObjects.push(bottle);
+    soundManager.playSound('bottleThrow');
     this.collectedBottles--;
     this.lastThrowTime = currentTime;
     let percentage = Math.min(this.collectedBottles * 20, 100);
@@ -146,6 +155,7 @@ class World {
     this.level.coins.forEach((coin) => {
       if (this.character.isColliding(coin) && !coin.collected) {
         coin.collect();
+        soundManager.playSound('coin');
         let collectedCount = 0;
         this.level.coins.forEach((c) => {
           if (c.collected) collectedCount++;
@@ -160,6 +170,7 @@ class World {
     this.level.bottles.forEach((bottle) => {
       if (this.character.isColliding(bottle) && !bottle.collected && this.collectedBottles < 5) {
         bottle.collect();
+        soundManager.playSound('bottleCollect');
         this.collectedBottles++;
         let percentage = Math.min(this.collectedBottles * 20, 100);
         this.statusBarBottle.setPercentage(percentage);
@@ -180,6 +191,9 @@ class World {
       }
       if (this.character.energy <= 0 && !this.character.isdead) {
         this.character.isdead = true;
+        this.character.currentImage = 0;
+        soundManager.playSound('dead');
+        soundManager.gameOver();
         clearStoppableInterval(this.collisionInterval);
       }
     });
@@ -191,6 +205,7 @@ class World {
       this.level.enemies.forEach((enemy) => {
         if (bottle.isColliding(enemy) && !enemy.isDead) {
           bottle.hit = true;
+          soundManager.playSound('bottleSplash');
           if (enemy.hit) {
             enemy.hit();
             if (enemy instanceof Endboss) {
@@ -217,46 +232,71 @@ class World {
         let timeSinceDeath = (new Date().getTime() - enemy.deadTime) / 1000;
         if (timeSinceDeath > 1) {
           this.levelCompleted = true;
+          soundManager.gameOver();
         }
       }
     });
   }
 
   draw() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.clearCanvas();
+    this.drawWorldObjects();
+    this.drawStatusBars();
+    if (this.shouldDrawEndScreen()) return;
+    this.continueGameLoop();
+  }
 
+  clearCanvas() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  drawWorldObjects() {
     this.ctx.save();
     this.ctx.translate(this.camera_x, 0);
+    this.drawBackgroundLayer();
+    this.drawGameEntities();
+    this.ctx.restore();
+  }
 
+  drawBackgroundLayer() {
     this.drawBackground();
     this.addObjectsToMap(this.level.clouds);
     this.drawCoins();
     this.drawCollectableBottles();
+  }
 
+  drawGameEntities() {
     this.ctx.translate(-this.camera_x, 0);
     this.ctx.translate(this.camera_x, 0);
     this.drawEnemies();
     this.drawThrowableBottles();
     this.addtoMap(this.character);
-    this.ctx.restore();
+  }
+
+  drawStatusBars() {
     this.addtoMap(this.statusBarCoin);
     this.addtoMap(this.statusBarHealth);
     this.addtoMap(this.statusBarBottle);
     this.drawEndbossStatusBar();
+  }
 
+  shouldDrawEndScreen() {
     if (this.levelCompleted) {
       this.drawYouWinScreen();
-      return;
+      return true;
     }
+    return this.checkAndDrawGameOver();
+  }
 
-    if (this.character.energy <= 0) {
-      let timepassed = (new Date().getTime() - this.character.lastHit) / 1000;
-      if (timepassed > 1) {
-        this.drawGameOverScreen();
-        return;
-      }
+  checkAndDrawGameOver() {
+    if (this.character.energy <= 0 && this.character.deathAnimationComplete) {
+      this.drawGameOverScreen();
+      return true;
     }
+    return false;
+  }
 
+  continueGameLoop() {
     if (!this.isPaused) {
       requestAnimationFrame(() => this.draw());
     }
@@ -307,20 +347,18 @@ class World {
 
   drawBackground() {
     for (let i = -1; i < 3; i++) {
-      this.level.backgroundObjects.forEach((bg) => {
-        let origX = bg.x;
-        bg.x = origX + i * 1440;
-        this.addtoMap(bg);
-        bg.x = origX;
-      });
-
-      this.level.backgroundObjects2.forEach((bg) => {
-        let origX = bg.x;
-        bg.x = origX + i * 1440;
-        this.addtoMap(bg);
-        bg.x = origX;
-      });
+      this.drawBackgroundObjects(this.level.backgroundObjects, i);
+      this.drawBackgroundObjects(this.level.backgroundObjects2, i);
     }
+  }
+
+  drawBackgroundObjects(backgroundObjects, layerIndex) {
+    backgroundObjects.forEach((backgroundObject) => {
+      let originalX = backgroundObject.x;
+      backgroundObject.x = originalX + layerIndex * 1440;
+      this.addtoMap(backgroundObject);
+      backgroundObject.x = originalX;
+    });
   }
 
   addObjectsToMap(objects) {
@@ -340,6 +378,8 @@ class World {
   showGameEndButtons() {
     document.getElementById('restartButton').classList.remove('d-none');
     document.getElementById('mainMenuButton').classList.remove('d-none');
+    document.getElementById('soundButtonGameEnd').classList.remove('d-none');
+    document.getElementById('soundButtonGame').classList.remove('show');
     toggleMobileControlsVisibility(false);
   }
 
@@ -363,4 +403,5 @@ class World {
       this.showGameEndButtons();
     }
   }
+
 }

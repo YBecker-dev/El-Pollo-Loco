@@ -68,11 +68,7 @@ body {
 
 /* Icon Buttons */
 .icon-button {
-    width: 72px;
-    height: 60px;
-    font-size: 28px;
     background-color: #FFAE3D;
-    color: white;
     border: 3px solid #333;
     border-radius: 5px;
     cursor: pointer;
@@ -80,6 +76,8 @@ body {
     align-items: center;
     justify-content: center;
     transition: transform 0.2s, background-color 0.3s;
+    height: 60px;
+    width: 120px;
 }
 
 .icon-button:hover {
@@ -91,13 +89,16 @@ body {
     transform: scale(0.95);
 }
 
-.icon-text {
-    font-family: Arial, sans-serif;
-    font-weight: bold;
-    line-height: 1;
+.icon-button img {
+    height: 40px;
+    width: 40px;
 }
 
-/* Play Button (Center) */
+#steeringButton img {
+    width: 56px;
+    height: 56px;
+}
+
 .play-button {
     width: 160px;
     height: 100px;
@@ -112,6 +113,12 @@ body {
     justify-content: center;
     transition: transform 0.3s, background-color 0.3s;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.play-button img {
+    height: 3rem;
+    width: 3rem;
+    margin-left: 8px;
 }
 
 .play-button:hover {
@@ -815,4 +822,44 @@ h1 {
     .impressum-text {
         font-size: 12px;
     }
+}
+
+/* Sound Button */
+.sound-button {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    background-color: rgba(255, 165, 0, 0.9);
+    border: 3px solid black;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1002;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, background-color 0.3s;
+}
+
+.sound-button:hover {
+    background-color: rgba(255, 165, 0, 1);
+    transform: scale(1.1);
+}
+
+.sound-button:active {
+    transform: scale(0.95);
+}
+
+.sound-button img {
+    width: 30px;
+    height: 30px;
+}
+
+#soundButtonGame {
+    display: none;
+}
+
+#soundButtonGame.show {
+    display: flex;
 }

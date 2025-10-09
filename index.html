@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css" />
     <title>El Pollo Loco - Jump and Run Game</title>
     <script src="js/interval-manager.js"></script>
+    <script src="js/models/sound-manager.class.js"></script>
     <script src="js/models/drawable-object.class.js"></script>
     <script src="js/models/status-bar.class.js"></script>
     <script src="js/models/status-bar-health.class.js"></script>
@@ -39,18 +40,114 @@
     <div id="gameContainer">
       <canvas id="canvas" width="720" height="480"></canvas>
 
-      <div id="menuContainer"></div>
+      <div id="menuContainer">
+        <div id="startMenu" class="menu-screen">
+          <div class="corner-buttons top-left">
+            <button class="icon-button" onclick="showImpressum()" title="Impressum">
+              <img class="icon-homescreen" src="/img_pollo_locco/img/homescreen-icons/information.png" alt="" />
+            </button>
+
+            <button class="icon-button" id="steeringButton" onclick="showSteering()" title="Steering">
+              <img class="icon-homescreen" src="/img_pollo_locco/img/homescreen-icons/buttons.png" alt="" />
+              </span>
+            </button>
+          </div>
+
+          <div class="corner-buttons top-right">
+            <button class="icon-button" onclick="showOptions()" title="Options">
+              <img src="/img_pollo_locco/img/homescreen-icons/volume.png" alt="" />
+            </button>
+          </div>
+
+          <button class="play-button" onclick="startGame()">
+            <img src="/img_pollo_locco/img/homescreen-icons/play-button.png" alt="">
+            </span>
+          </button>
+        </div>
+
+        <div id="optionsMenu" class="menu-screen d-none">
+          <div class="options-container">
+            <h2 class="menu-title">Options</h2>
+            <div class="option-row">
+              <label class="option-label">Sound:</label>
+              <button id="soundToggle" class="toggle-button on" onclick="toggleSound()">ON</button>
+            </div>
+            <div class="option-row">
+              <label class="option-label">Volume:</label>
+              <input
+                type="range"
+                id="volumeSlider"
+                class="volume-slider"
+                min="0"
+                max="100"
+                value="100"
+                oninput="updateVolume(this.value)"
+              />
+              <span id="volumeValue" class="volume-value">100%</span>
+            </div>
+            <div class="option-row-button">
+              <button class="menu-button back-button" onclick="backToStartWithAnimation()">Back</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Steering Menu -->
+        <div id="steeringMenu" class="menu-screen d-none">
+          <div class="steering-container">
+            <h2 class="menu-title">Steering</h2>
+            <p class="steering-text">→ / D: Move right</p>
+            <p class="steering-text">← / A: Move left</p>
+            <p class="steering-text">↑ / W / Space: Jump</p>
+            <p class="steering-text">F: Throw bottle</p>
+            <p class="steering-text">ESC: Pause game</p>
+            <div class="steering-row-button">
+              <button class="menu-button back-button" onclick="backToStartWithAnimation()">Back</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Impressum Menu -->
+        <div id="impressumMenu" class="menu-screen d-none">
+          <div class="impressum-container">
+            <h2 class="menu-title">Impressum</h2>
+            <div class="impressum-content">
+              <div class="impressum-row">
+                <h3 class="impressum-section-title">Entwickler:</h3>
+                <p class="impressum-text">Yannick Becker</p>
+              </div>
+              <div class="impressum-row">
+                <h3 class="impressum-section-title">E-Mail:</h3>
+                <p class="impressum-text">beckeryanick18@gmail.com</p>
+              </div>
+              <div class="impressum-row">
+                <h3 class="impressum-section-title">Adresse:</h3>
+                <p class="impressum-text">Hitzkirchenerstraße 22, 63699 Kefenrod</p>
+              </div>
+            </div>
+            <button class="menu-button" onclick="showStartMenu()">Back</button>
+          </div>
+        </div>
+      </div>
 
       <div id="pauseOverlay" class="pause-overlay d-none">
         <button id="continueButton" class="pause-menu-button" onclick="togglePauseMenu()">Continue</button>
         <button id="backToMenuButton" class="pause-menu-button" onclick="backToMainMenuFromPause()">
           Back to Menu
         </button>
+        <button id="soundButtonPause" class="sound-button" onclick="toggleSoundButton()">
+          <img id="soundIconPause" src="img_pollo_locco/img/homescreen-icons/volume.png" alt="Sound">
+        </button>
       </div>
 
-      <button id="pauseButton" class="d-none" onclick="togglePause()">Pause</button>
       <button id="restartButton" class="game-is-over-button d-none" onclick="restartGame()">Restart</button>
       <button id="mainMenuButton" class="game-is-over-button d-none" onclick="backToMainMenu()">Back to Menu</button>
+      <button id="soundButtonGameEnd" class="sound-button d-none" onclick="toggleSoundButton()">
+        <img id="soundIconGameEnd" src="img_pollo_locco/img/homescreen-icons/volume.png" alt="Sound">
+      </button>
+
+      <button id="soundButtonGame" class="sound-button" onclick="toggleSoundButton()">
+        <img id="soundIconGame" src="img_pollo_locco/img/homescreen-icons/volume.png" alt="Sound">
+      </button>
 
       <div id="mobileControls" class="mobile-controls d-none">
         <div class="mobile-controls-left">

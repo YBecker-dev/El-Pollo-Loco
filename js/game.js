@@ -5,22 +5,34 @@ let ctx;
 
 function init() {
   canvas = document.getElementById('canvas');
+  initializeSounds();
+  soundManager.resetGameOver();
   world = new World(canvas, keyboard);
   ctx = canvas.getContext('2d');
+}
+
+function initializeSounds() {
+  soundManager.addSound('jump', 'audio/character/jump/jump.wav');
+  soundManager.addSound('hurt', 'audio/character/hurt/hurt.wav');
+  soundManager.addSound('dead', 'audio/character/dead/dead.wav');
+  soundManager.addSound('sleeping', 'audio/character/sleeping/sleeping.wav');
+  soundManager.addSound('coin', 'audio/Gameplay/items/coin.wav');
+  soundManager.addSound('bottleCollect', 'audio/Gameplay/collect-bottle/collect-bottle.wav');
+  soundManager.addSound('bottleThrow', 'audio/Gameplay/throw-bottle/throw-bottle.wav');
+  soundManager.addSound('bottleSplash', 'audio/Gameplay/splash-bottle/splash-bottle.mp3');
 }
 
 function togglePause() {
   if (world) {
     world.togglePause();
-    const button = document.getElementById('pauseButton');
-    button.textContent = world.isPaused ? '▶️ Resume' : '⏸️ Pause';
-    button.blur();
   }
 }
 
 function restartGame() {
   document.getElementById('restartButton').classList.add('d-none');
   document.getElementById('mainMenuButton').classList.add('d-none');
+  document.getElementById('soundButtonGameEnd').classList.add('d-none');
+  document.getElementById('soundButtonGame').classList.add('show');
   toggleMobileControlsVisibility(true);
 
   stopGame();
@@ -64,19 +76,26 @@ window.addEventListener('keyup', (e) => {
 
 function togglePauseMenu() {
   const pauseOverlay = document.getElementById('pauseOverlay');
-
   if (pauseOverlay.classList.contains('d-none')) {
-    pauseOverlay.classList.remove('d-none');
-    toggleMobileControlsVisibility(false);
-    if (world && !world.isPaused) {
-      world.togglePause();
-    }
+    showPauseMenu(pauseOverlay);
   } else {
-    pauseOverlay.classList.add('d-none');
-    toggleMobileControlsVisibility(true);
-    if (world && world.isPaused) {
-      world.togglePause();
-    }
+    hidePauseMenu(pauseOverlay);
+  }
+}
+
+function showPauseMenu(pauseOverlay) {
+  pauseOverlay.classList.remove('d-none');
+  toggleMobileControlsVisibility(false);
+  if (world && !world.isPaused) {
+    world.togglePause();
+  }
+}
+
+function hidePauseMenu(pauseOverlay) {
+  pauseOverlay.classList.add('d-none');
+  toggleMobileControlsVisibility(true);
+  if (world && world.isPaused) {
+    world.togglePause();
   }
 }
 
@@ -85,7 +104,6 @@ function backToMainMenuFromPause() {
 
   backToMainMenu();
 }
-
 
 function bindMobileButton(buttonId, keyboardProperty) {
   const button = document.getElementById(buttonId);
@@ -119,4 +137,36 @@ function setupMobileControls() {
 
 window.addEventListener('load', () => {
   setupMobileControls();
+  disableContextMenu();
 });
+
+function disableContextMenu() {
+  const canvas = document.getElementById('canvas');
+  const gameContainer = document.getElementById('gameContainer');
+  const title = document.getElementById('title');
+
+  [canvas, gameContainer, title, document.body].forEach(element => {
+    element.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+    });
+  });
+}
+
+function toggleSoundButton() {
+  soundManager.toggleMute();
+  updateSoundButtonIcons();
+}
+
+function updateSoundButtonIcons() {
+  const iconPause = document.getElementById('soundIconPause');
+  const iconGameEnd = document.getElementById('soundIconGameEnd');
+  const iconGame = document.getElementById('soundIconGame');
+
+  const iconSrc = soundManager.isMuted
+    ? 'img_pollo_locco/img/homescreen-icons/mute.png'
+    : 'img_pollo_locco/img/homescreen-icons/volume.png';
+
+  if (iconPause) iconPause.src = iconSrc;
+  if (iconGameEnd) iconGameEnd.src = iconSrc;
+  if (iconGame) iconGame.src = iconSrc;
+}

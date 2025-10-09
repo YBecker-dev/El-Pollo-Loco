@@ -14,7 +14,6 @@ class MovableObject extends DrawableObject {
         this.y -= this.speedY;
         this.speedY -= this.acceleration;
 
-        // Verhindere dass Character unter den Boden fällt
         if (this.y > 100 && !(this instanceof ThrowableObject)) {
           this.y = 100;
           this.speedY = 0;
@@ -33,7 +32,6 @@ class MovableObject extends DrawableObject {
         this.y -= this.speedY;
         this.speedY -= this.acceleration;
 
-        // Verhindere dass Character unter den Boden fällt
         if (this.y > 100 && !(this instanceof ThrowableObject)) {
           this.y = 100;
           this.speedY = 0;
@@ -60,6 +58,7 @@ class MovableObject extends DrawableObject {
 
   jump() {
     this.speedY = 30;
+    soundManager.playSound('jump');
   }
 
   hit() {
@@ -68,6 +67,7 @@ class MovableObject extends DrawableObject {
       this.energy = 0;
     } else {
       this.lastHit = new Date().getTime();
+      soundManager.playSound('hurt');
     }
   }
 

@@ -46,7 +46,6 @@ class Endboss extends MovableObject {
 
   world;
   health = 5;
-  isDead = false;
   isHurt = false;
   hurtTime = 0;
   deadTime = 0;

@@ -63,6 +63,8 @@ class Character extends MovableObject {
   lastMovementTime = new Date().getTime();
   movementInterval;
   animationInterval;
+  deathAnimationComplete = false;
+  isSleeping = false;
 
   constructor() {
     super();
@@ -137,10 +139,13 @@ class Character extends MovableObject {
     }
 
     let thisOffsets = this.getHitboxOffsets();
+    let enemyOffsets = enemy.getHitboxOffsets();
     let characterBottom = this.y + this.height - thisOffsets.yBottom;
+    let enemyTop = enemy.y + enemyOffsets.yTop;
+    let tolerance = enemy.height * 0.3;
     let isInAir = this.isAboveGround();
     let isFalling = this.speedY < 10;
-    let isAboveEnemy = characterBottom + 80;
+    let isAboveEnemy = characterBottom < enemyTop + tolerance;
 
     return isInAir && isFalling && isAboveEnemy;
   }
@@ -171,7 +176,13 @@ class Character extends MovableObject {
     let idleTime = currentTime - this.lastMovementTime;
 
     if (this.isdead) {
-      this.playAnimation(this.IMAGES_DEAD);
+      if (this.currentImage >= this.IMAGES_DEAD.length) {
+        this.deathAnimationComplete = true;
+        this.currentImage = this.IMAGES_DEAD.length - 1;
+        this.img = this.imageCache[this.IMAGES_DEAD[this.currentImage]];
+      } else {
+        this.playAnimation(this.IMAGES_DEAD);
+      }
     } else if (this.isHurt()) {
       this.playAnimation(this.IMAGES_HURT);
       this.lastMovementTime = currentTime;
@@ -192,6 +203,9 @@ class Character extends MovableObject {
   }
 
   handleKeyboardInput() {
+    if (this.isdead) {
+      return false;
+    }
     let moved = false;
     moved = this.handleRightMovement() || moved;
     moved = this.handleLeftMovement() || moved;
@@ -227,6 +241,9 @@ class Character extends MovableObject {
   }
 
   handleThrowInput() {
+    if (this.isHurt()) {
+      return false;
+    }
     return this.world.keyboard.F;
   }
 
@@ -242,11 +259,17 @@ class Character extends MovableObject {
   }
 
   handleIdleAnimation(idleTime) {
-    if (idleTime < 10000) {
-      this.img = this.imageCache['img_pollo_locco/img/2_character_pepe/2_walk/W-21.png'];
-    } else if (idleTime < 30000) {
+    if (idleTime < 15000) {
       this.playAnimation(this.IMAGES_IDLE);
+      if (this.isSleeping) {
+        soundManager.stopLoopingSound('sleeping');
+        this.isSleeping = false;
+      }
     } else {
+      if (!this.isSleeping) {
+        soundManager.playLoopingSound('sleeping');
+        this.isSleeping = true;
+      }
       this.playAnimation(this.IMAGES_IDLE_LONG);
     }
   }

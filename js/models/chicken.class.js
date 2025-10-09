@@ -1,7 +1,6 @@
 class Chicken extends MovableObject {
   IMAGES_WALKING = [];
   IMAGES_DEAD = [];
-  isDead = false;
   deadTime = 0;
   movementInterval;
   animationInterval;
@@ -37,7 +36,7 @@ class Chicken extends MovableObject {
   }
 
   setChickenPosition() {
-    this.x = 300 + Math.random() * 3000;
+    this.x = 600 + Math.random() * 3000;
     this.y = 435 - this.height;
     this.speed = 0.1 + Math.random() * 0.25;
   }
