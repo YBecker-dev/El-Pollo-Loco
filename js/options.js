@@ -1,4 +1,3 @@
-// Optionen-Variablen
 let soundEnabled = true;
 let volume = 100;
 

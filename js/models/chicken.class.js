@@ -16,8 +16,8 @@ class Chicken extends MovableObject {
   }
 
   initializeChickenType() {
-    const folder = this.type === 'small' ? 'chicken_small' : 'chicken_normal';
-    const size = this.type === 'small' ? { width: 60, height: 80 } : { width: 70, height: 100 };
+    const folder = this.getChickenFolder();
+    const size = this.getChickenSize();
 
     this.IMAGES_WALKING = [
       `img_pollo_locco/img/3_enemies_chicken/${folder}/1_walk/1_w.png`,
@@ -27,6 +27,22 @@ class Chicken extends MovableObject {
     this.IMAGES_DEAD = [`img_pollo_locco/img/3_enemies_chicken/${folder}/2_dead/dead.png`];
     this.width = size.width;
     this.height = size.height;
+  }
+
+  getChickenFolder() {
+    if (this.type === 'small') {
+      return 'chicken_small';
+    } else {
+      return 'chicken_normal';
+    }
+  }
+
+  getChickenSize() {
+    if (this.type === 'small') {
+      return { width: 60, height: 80 };
+    } else {
+      return { width: 70, height: 100 };
+    }
   }
 
   loadChickenImages() {
@@ -71,15 +87,6 @@ class Chicken extends MovableObject {
   }
 
   resumeAnimations() {
-    this.movementInterval = setStoppableInterval(() => {
-      if (!this.isDead) {
-        this.moveLeft();
-      }
-    }, 1000 / 144);
-    this.animationInterval = setStoppableInterval(() => {
-      if (!this.isDead) {
-        this.playAnimation(this.IMAGES_WALKING);
-      }
-    }, 100);
+    this.animate();
   }
 }

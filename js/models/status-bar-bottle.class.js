@@ -20,7 +20,7 @@ class StatusBarBottle extends StatusBar {
 
   setPercentage(percentage) {
     this.percentage = percentage;
-    let path = this.IMAGES_BOTTLE[this.resolveImageIndex(percentage)];
+    const path = this.IMAGES_BOTTLE[this.resolveImageIndex(percentage)];
     this.img = this.imageCache[path];
   }
 }

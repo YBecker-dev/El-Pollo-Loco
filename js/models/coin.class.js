@@ -8,29 +8,45 @@ class Coin extends CollectableObject {
     this.height = 175;
   }
 
-  isColliding(mo) {
-    let thisBox = this.getHitbox();
-    let moBox = mo.getHitbox ? mo.getHitbox() : this.calculateHitbox(mo);
-    return (
-      thisBox.x + thisBox.width > moBox.x &&
-      thisBox.y + thisBox.height > moBox.y &&
-      thisBox.x < moBox.x + moBox.width &&
-      thisBox.y < moBox.y + moBox.height
-    );
-  }
+isColliding(mo) {
+  const thisBox = this.getHitbox();
+  const moBox = this.getMoBox(mo);
+  return (
+    thisBox.x + thisBox.width > moBox.x &&
+    thisBox.y + thisBox.height > moBox.y &&
+    thisBox.x < moBox.x + moBox.width &&
+    thisBox.y < moBox.y + moBox.height
+  );
+}
 
-  calculateHitbox(obj) {
-    let offsets = obj.getHitboxOffsets ? obj.getHitboxOffsets() : { xWidth: 0, yTop: 0, yBottom: 0 };
-    return {
-      x: obj.x + offsets.xWidth,
-      y: obj.y + offsets.yTop,
-      width: obj.width - 2 * offsets.xWidth,
-      height: obj.height - offsets.yTop - offsets.yBottom,
-    };
+getMoBox(mo) {
+  if (mo.getHitbox) {
+    return mo.getHitbox();
+  } else {
+    return this.calculateHitbox(mo);
   }
+}
+
+calculateHitbox(obj) {
+  const offsets = this.getOffsetsForObj(obj);
+  return {
+    x: obj.x + offsets.xWidth,
+    y: obj.y + offsets.yTop,
+    width: obj.width - 2 * offsets.xWidth,
+    height: obj.height - offsets.yTop - offsets.yBottom,
+  };
+}
+
+getOffsetsForObj(obj) {
+  if (obj.getHitboxOffsets) {
+    return obj.getHitboxOffsets();
+  } else {
+    return { xWidth: 0, yTop: 0, yBottom: 0 };
+  }
+}
 
   getHitbox() {
-    let offsets = this.getHitboxOffsets();
+    const offsets = this.getHitboxOffsets();
     return {
       x: this.x + offsets.xWidth,
       y: this.y + offsets.yTop,

@@ -27,17 +27,7 @@ class MovableObject extends DrawableObject {
   }
 
   resumeGravity() {
-    this.gravityInterval = setInterval(() => {
-      if (this.isAboveGround() || this.speedY > 0) {
-        this.y -= this.speedY;
-        this.speedY -= this.acceleration;
-
-        if (this.y > 100 && !(this instanceof ThrowableObject)) {
-          this.y = 100;
-          this.speedY = 0;
-        }
-      }
-    }, 1000 / 25);
+    this.applyGravity();
   }
 
   isAboveGround() {
@@ -82,8 +72,8 @@ class MovableObject extends DrawableObject {
   }
 
   playAnimation(images) {
-    let i = this.currentImage % images.length;
-    let path = images[i];
+    const index = this.currentImage % images.length;
+    const path = images[index];
     this.img = this.imageCache[path];
     this.currentImage++;
   }

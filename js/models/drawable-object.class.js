@@ -18,7 +18,7 @@ class DrawableObject {
 
   loadImages(arr) {
     arr.forEach((path) => {
-      let img = new Image();
+      const img = new Image();
       img.src = path;
       this.imageCache[path] = img;
     });
@@ -49,10 +49,10 @@ class DrawableObject {
   }
 
   drawHitbox(ctx, offsets) {
-    let hitboxX = this.x + offsets.offsetX;
-    let hitboxY = this.y + offsets.offsetYTop;
-    let hitboxWidth = this.width - 2 * offsets.offsetX;
-    let hitboxHeight = this.height - offsets.offsetYTop - offsets.offsetYBottom;
+    const hitboxX = this.x + offsets.offsetX;
+    const hitboxY = this.y + offsets.offsetYTop;
+    const hitboxWidth = this.width - 2 * offsets.offsetX;
+    const hitboxHeight = this.height - offsets.offsetYTop - offsets.offsetYBottom;
 
     ctx.beginPath();
     ctx.lineWidth = '5';
@@ -62,18 +62,23 @@ class DrawableObject {
   }
 
   drawFrame(ctx) {
-    if (this instanceof Chicken || this instanceof Character || this instanceof Coin) {
-      let offsets;
-
-      if (this instanceof Character) {
-        offsets = this.getCharacterHitboxOffsets();
-      } else if (this instanceof Chicken) {
-        offsets = this.getChickenHitboxOffsets();
-      } else if (this instanceof Coin) {
-        offsets = this.getCoinHitboxOffsets();
-      }
-
+    if (this.shouldDrawHitbox()) {
+      const offsets = this.getHitboxOffsets();
       this.drawHitbox(ctx, offsets);
+    }
+  }
+
+  shouldDrawHitbox() {
+    return this instanceof Chicken || this instanceof Character || this instanceof Coin;
+  }
+
+  getHitboxOffsets() {
+    if (this instanceof Character) {
+      return this.getCharacterHitboxOffsets();
+    } else if (this instanceof Chicken) {
+      return this.getChickenHitboxOffsets();
+    } else if (this instanceof Coin) {
+      return this.getCoinHitboxOffsets();
     }
   }
 

@@ -1,7 +1,7 @@
 let intervalIds = [];
 
 function setStoppableInterval(fn, time) {
-  let id = setInterval(fn, time);
+  const id = setInterval(fn, time);
   intervalIds.push(id);
   return id;
 }

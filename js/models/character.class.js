@@ -95,8 +95,8 @@ class Character extends MovableObject {
   }
 
   isColliding(mo) {
-    let thisBox = this.getHitbox();
-    let moBox = mo.getHitbox ? mo.getHitbox() : this.calculateHitbox(mo);
+    const thisBox = this.getHitbox();
+    const moBox = this.getMoBox(mo);
     return (
       thisBox.x + thisBox.width > moBox.x &&
       thisBox.y + thisBox.height > moBox.y &&
@@ -105,8 +105,16 @@ class Character extends MovableObject {
     );
   }
 
+  getMoBox(mo) {
+    if (mo.getHitbox) {
+      return mo.getHitbox();
+    } else {
+      return this.calculateHitbox(mo);
+    }
+  }
+
   calculateHitbox(obj) {
-    let offsets = obj.getHitboxOffsets ? obj.getHitboxOffsets() : { xWidth: 0, yTop: 0, yBottom: 0 };
+    const offsets = this.getOffsetsForObj(obj);
     return {
       x: obj.x + offsets.xWidth,
       y: obj.y + offsets.yTop,
@@ -115,8 +123,16 @@ class Character extends MovableObject {
     };
   }
 
+  getOffsetsForObj(obj) {
+    if (obj.getHitboxOffsets) {
+      return obj.getHitboxOffsets();
+    } else {
+      return { xWidth: 0, yTop: 0, yBottom: 0 };
+    }
+  }
+
   getHitbox() {
-    let offsets = this.getHitboxOffsets();
+    const offsets = this.getHitboxOffsets();
     return {
       x: this.x + offsets.xWidth,
       y: this.y + offsets.yTop,
@@ -137,16 +153,30 @@ class Character extends MovableObject {
     if (!this.isColliding(enemy) || enemy.isDead) {
       return false;
     }
+    return this.isCharacterLandingOnEnemy(enemy);
+  }
 
-    let thisOffsets = this.getHitboxOffsets();
-    let enemyOffsets = enemy.getHitboxOffsets();
-    let characterBottom = this.y + this.height - thisOffsets.yBottom;
-    let enemyTop = enemy.y + enemyOffsets.yTop;
-    let tolerance = enemy.height * 0.3;
-    let isInAir = this.isAboveGround();
-    let isFalling = this.speedY < 10;
-    let isAboveEnemy = characterBottom < enemyTop + tolerance;
+  isCharacterLandingOnEnemy(enemy) {
+    const characterBottom = this.getCharacterBottom();
+    const enemyTop = this.getEnemyTop(enemy);
+    const tolerance = enemy.height * 0.3;
+    return this.isValidJumpAttack(characterBottom, enemyTop, tolerance);
+  }
 
+  getCharacterBottom() {
+    const offsets = this.getHitboxOffsets();
+    return this.y + this.height - offsets.yBottom;
+  }
+
+  getEnemyTop(enemy) {
+    const offsets = enemy.getHitboxOffsets();
+    return enemy.y + offsets.yTop;
+  }
+
+  isValidJumpAttack(characterBottom, enemyTop, tolerance) {
+    const isInAir = this.isAboveGround();
+    const isFalling = this.speedY < 10;
+    const isAboveEnemy = characterBottom < enemyTop + tolerance;
     return isInAir && isFalling && isAboveEnemy;
   }
 
@@ -166,47 +196,72 @@ class Character extends MovableObject {
   }
 
   handleMovement() {
-    let moved = this.handleKeyboardInput();
+    const moved = this.handleKeyboardInput();
     this.updateMovementTimer(moved);
     this.handleCollisionsAndCamera();
   }
 
   handleAnimation() {
+    if (this.shouldStopAnimationForLevelComplete()) return;
+    const idleTime = this.getIdleTime();
+    this.selectAndPlayAnimation(idleTime);
+  }
+
+  shouldStopAnimationForLevelComplete() {
     if (this.world && this.world.levelCompleted) {
-      if (this.isSleeping) {
-        soundManager.stopLoopingSound('sleeping');
-        this.isSleeping = false;
-      }
-      return;
+      this.stopSleepingIfActive();
+      return true;
     }
+    return false;
+  }
 
-    let currentTime = new Date().getTime();
-    let idleTime = currentTime - this.lastMovementTime;
+  stopSleepingIfActive() {
+    if (this.isSleeping) {
+      soundManager.stopLoopingSound('sleeping');
+      this.isSleeping = false;
+    }
+  }
 
+  getIdleTime() {
+    const currentTime = new Date().getTime();
+    return currentTime - this.lastMovementTime;
+  }
+
+  selectAndPlayAnimation(idleTime) {
     if (this.isdead) {
-      if (this.currentImage >= this.IMAGES_DEAD.length) {
-        this.deathAnimationComplete = true;
-        this.currentImage = this.IMAGES_DEAD.length - 1;
-        this.img = this.imageCache[this.IMAGES_DEAD[this.currentImage]];
-      } else {
-        this.playAnimation(this.IMAGES_DEAD);
-      }
+      this.handleDeathAnimation();
     } else if (this.isHurt()) {
-      this.playAnimation(this.IMAGES_HURT);
-      this.lastMovementTime = currentTime;
-      if (this.isSleeping) {
-        soundManager.stopLoopingSound('sleeping');
-        this.isSleeping = false;
-      }
+      this.handleHurtAnimation();
     } else if (this.isAboveGround()) {
-      this.playAnimation(this.IMAGES_JUMPING);
-      if (this.isSleeping) {
-        soundManager.stopLoopingSound('sleeping');
-        this.isSleeping = false;
-      }
+      this.handleJumpAnimation();
     } else {
       this.handleGroundAnimation(idleTime);
     }
+  }
+
+  handleDeathAnimation() {
+    if (this.currentImage >= this.IMAGES_DEAD.length) {
+      this.finalizeDeathAnimation();
+    } else {
+      this.playAnimation(this.IMAGES_DEAD);
+    }
+  }
+
+  finalizeDeathAnimation() {
+    this.deathAnimationComplete = true;
+    this.currentImage = this.IMAGES_DEAD.length - 1;
+    this.img = this.imageCache[this.IMAGES_DEAD[this.currentImage]];
+  }
+
+  handleHurtAnimation() {
+    this.playAnimation(this.IMAGES_HURT);
+    this.lastMovementTime = new Date().getTime();
+    this.stopSleepingIfActive();
+  }
+
+  handleJumpAnimation() {
+    this.playAnimation(this.IMAGES_JUMPING);
+    this.stopSleepingIfActive();
   }
 
   handleGroundAnimation(idleTime) {
@@ -280,17 +335,26 @@ class Character extends MovableObject {
 
   handleIdleAnimation(idleTime) {
     if (idleTime < 15000) {
-      this.playAnimation(this.IMAGES_IDLE);
-      if (this.isSleeping) {
-        soundManager.stopLoopingSound('sleeping');
-        this.isSleeping = false;
-      }
+      this.playShortIdleAnimation();
     } else {
-      if (!this.isSleeping) {
-        soundManager.playLoopingSound('sleeping');
-        this.isSleeping = true;
-      }
-      this.playAnimation(this.IMAGES_IDLE_LONG);
+      this.playLongIdleAnimation();
+    }
+  }
+
+  playShortIdleAnimation() {
+    this.playAnimation(this.IMAGES_IDLE);
+    this.stopSleepingIfActive();
+  }
+
+  playLongIdleAnimation() {
+    this.startSleepingIfNotActive();
+    this.playAnimation(this.IMAGES_IDLE_LONG);
+  }
+
+  startSleepingIfNotActive() {
+    if (!this.isSleeping) {
+      soundManager.playLoopingSound('sleeping');
+      this.isSleeping = true;
     }
   }
 

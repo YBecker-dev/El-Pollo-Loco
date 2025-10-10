@@ -2,6 +2,11 @@ let world;
 let keyboard = new Keyboard();
 let canvas;
 let ctx;
+let joystickActive = false;
+let joystickTouchId = null;
+let joystickStartX = 0;
+let joystickStartY = 0;
+let joystickMaxDistance = 60;
 
 function init() {
   canvas = document.getElementById('canvas');
@@ -11,23 +16,39 @@ function init() {
   ctx = canvas.getContext('2d');
 }
 
-function initializeSounds() {
+function initializeCharacterSounds() {
   soundManager.addSound('jump', 'audio/character/jump/jump.wav');
   soundManager.addSound('hurt', 'audio/character/hurt/hurt.wav');
   soundManager.addSound('dead', 'audio/character/dead/dead.wav');
   soundManager.addSound('sleeping', 'audio/character/sleeping/sleeping.wav');
+}
+
+function initializeChickenSounds() {
+  soundManager.addSound('chickenDead', 'audio/chicken/dead/chicken-dead.mp3');
+}
+
+function initializeEndbossSounds() {
+  soundManager.addSound('endbossAlert', 'audio/Endboss/alert/endboss-alert.mp3');
+  soundManager.addSound('endbossHurt', 'audio/Endboss/hurt/endboss-hurt.mp3');
+  soundManager.addSound('endbossDead', 'audio/Endboss/dead/endboss-dead.mp3');
+}
+
+function initializeGameplaySounds() {
   soundManager.addSound('coin', 'audio/Gameplay/items/coin.wav');
   soundManager.addSound('bottleCollect', 'audio/Gameplay/collect-bottle/collect-bottle.wav');
   soundManager.addSound('bottleThrow', 'audio/Gameplay/throw-bottle/throw-bottle.wav');
   soundManager.addSound('bottleSplash', 'audio/Gameplay/splash-bottle/splash-bottle.mp3');
-  soundManager.addSound('chickenDead', 'audio/chicken/dead/chicken-dead.mp3');
-  soundManager.addSound('endbossAlert', 'audio/Endboss/alert/endboss-alert.mp3');
-  soundManager.addSound('endbossHurt', 'audio/Endboss/hurt/endboss-hurt.mp3');
-  soundManager.addSound('endbossDead', 'audio/Endboss/dead/endboss-dead.mp3');
   soundManager.addSound('pause', 'audio/Gameplay/pause/pause.wav');
   soundManager.addSound('unpause', 'audio/Gameplay/unpause/unpause.wav');
   soundManager.addSound('youWin', 'audio/Gameplay/you-win/you-win.wav');
   soundManager.addSound('youLose', 'audio/Gameplay/you-lose/you-lose,wav.mp3');
+}
+
+function initializeSounds() {
+  initializeCharacterSounds();
+  initializeChickenSounds();
+  initializeEndbossSounds();
+  initializeGameplaySounds();
 }
 
 function togglePause() {
@@ -37,19 +58,27 @@ function togglePause() {
 }
 
 function restartGame() {
+  resetGameUI();
+  cleanupGameState();
+  restartGameLogic();
+}
+
+function resetGameUI() {
   document.getElementById('restartButton').classList.add('d-none');
   document.getElementById('mainMenuButton').classList.add('d-none');
   document.getElementById('soundButtonGameEnd').classList.add('d-none');
   document.getElementById('soundButtonGame').classList.add('show');
   toggleMobileControlsVisibility(true);
+}
 
+function cleanupGameState() {
   stopGame();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
 
+function restartGameLogic() {
   initLevel();
-
   soundManager.resumeBackgroundMusic();
-
   init();
 }
 
@@ -66,20 +95,20 @@ const keyMap = {
   f: 'F',
 };
 
-window.addEventListener('keydown', (e) => {
-  const key = keyMap[e.key] || keyMap[e.key.toLowerCase()];
+window.addEventListener('keydown', (event) => {
+  const key = keyMap[event.key] || keyMap[event.key.toLowerCase()];
   if (key) {
     keyboard[key] = true;
   }
 });
 
-window.addEventListener('keyup', (e) => {
-  const key = keyMap[e.key] || keyMap[e.key.toLowerCase()];
+window.addEventListener('keyup', (event) => {
+  const key = keyMap[event.key] || keyMap[event.key.toLowerCase()];
   if (key) {
     keyboard[key] = false;
   }
 
-  if (e.key === 'Escape' && world && world.character && !world.levelCompleted && !world.character.isdead) {
+  if (event.key === 'Escape' && world && world.character && !world.levelCompleted && !world.character.isdead) {
     togglePauseMenu();
   }
 });
@@ -115,23 +144,21 @@ function backToMainMenuFromPause() {
   backToMainMenu();
 }
 
-// Virtual Joystick State
-let joystickActive = false;
-let joystickTouchId = null;
-let joystickStartX = 0;
-let joystickStartY = 0;
-let joystickMaxDistance = 60; // Max distance the stick can move from base
-
 function bindMobileButton(buttonId, keyboardProperty) {
   const button = document.getElementById(buttonId);
-  button.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    keyboard[keyboardProperty] = true;
-  }, { passive: false });
-  button.addEventListener('touchend', (e) => {
-    e.preventDefault();
-    keyboard[keyboardProperty] = false;
-  }, { passive: false });
+  bindTouchHandler(button, keyboardProperty, 'touchstart', true);
+  bindTouchHandler(button, keyboardProperty, 'touchend', false);
+}
+
+function bindTouchHandler(button, keyboardProperty, eventType, value) {
+  button.addEventListener(
+    eventType,
+    (event) => {
+      event.preventDefault();
+      keyboard[keyboardProperty] = value;
+    },
+    { passive: false }
+  );
 }
 
 function toggleMobileControlsVisibility(show) {
@@ -153,99 +180,133 @@ function setupMobileControls() {
 
 function setupVirtualJoystick() {
   const joystickArea = document.getElementById('joystickArea');
-  const joystickBase = document.getElementById('joystickBase');
-  const joystickStick = document.getElementById('joystickStick');
 
-  joystickArea.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    if (joystickActive) return; // Only one joystick touch at a time
+  joystickArea.addEventListener('touchstart', handleJoystickTouchStart, { passive: false });
+  joystickArea.addEventListener('touchmove', handleJoystickTouchMove, { passive: false });
+  joystickArea.addEventListener('touchend', handleJoystickTouchEnd, { passive: false });
+  joystickArea.addEventListener('touchcancel', handleJoystickTouchEnd, { passive: false });
+}
 
-    const touch = e.touches[0];
-    joystickTouchId = touch.identifier;
-    joystickStartX = touch.clientX;
-    joystickStartY = touch.clientY;
+function handleJoystickTouchStart(event) {
+  event.preventDefault();
+  if (joystickActive) return;
 
-    // Show joystick at touch position
-    joystickBase.style.left = joystickStartX + 'px';
-    joystickBase.style.top = joystickStartY + 'px';
-    joystickStick.style.left = joystickStartX + 'px';
-    joystickStick.style.top = joystickStartY + 'px';
+  const touch = event.touches[0];
+  joystickTouchId = touch.identifier;
+  const startPos = calculateTouchPosition(touch, document.getElementById('joystickArea'));
 
-    joystickBase.classList.remove('d-none');
-    joystickStick.classList.remove('d-none');
+  joystickStartX = startPos.x;
+  joystickStartY = startPos.y;
 
-    joystickActive = true;
-  }, { passive: false });
+  showJoystick(startPos);
+  joystickActive = true;
+}
 
-  joystickArea.addEventListener('touchmove', (e) => {
-    e.preventDefault();
-    if (!joystickActive) return;
+function handleJoystickTouchMove(event) {
+  event.preventDefault();
+  if (!joystickActive) return;
 
-    // Find the touch that started the joystick
-    let touch = null;
-    for (let i = 0; i < e.touches.length; i++) {
-      if (e.touches[i].identifier === joystickTouchId) {
-        touch = e.touches[i];
-        break;
-      }
-    }
-    if (!touch) return;
+  const touch = findCurrentTouch(event.touches);
+  if (!touch) return;
 
-    const deltaX = touch.clientX - joystickStartX;
-    const deltaY = touch.clientY - joystickStartY;
-    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+  const touchPos = calculateTouchPosition(touch, document.getElementById('joystickArea'));
+  const stickPos = calculateStickPosition(touchPos);
 
-    // Clamp stick position to max distance
-    let stickX, stickY;
-    if (distance > joystickMaxDistance) {
-      const angle = Math.atan2(deltaY, deltaX);
-      stickX = joystickStartX + Math.cos(angle) * joystickMaxDistance;
-      stickY = joystickStartY + Math.sin(angle) * joystickMaxDistance;
-    } else {
-      stickX = touch.clientX;
-      stickY = touch.clientY;
-    }
+  updateJoystickVisual(stickPos);
+  updateKeyboardFromJoystick(touchPos);
+}
 
-    // Update stick position
-    joystickStick.style.left = stickX + 'px';
-    joystickStick.style.top = stickY + 'px';
+function handleJoystickTouchEnd(event) {
+  event.preventDefault();
+  if (!joystickActive) return;
 
-    // Update keyboard state based on joystick direction
-    const threshold = 20; // Minimum distance to trigger movement
-    keyboard.Left = deltaX < -threshold;
-    keyboard.Right = deltaX > threshold;
-  }, { passive: false });
+  if (isCurrentTouchEnded(event)) {
+    hideJoystick();
+    resetJoystickState();
+  }
+}
 
-  const endJoystick = (e) => {
-    e.preventDefault();
-    if (!joystickActive) return;
-
-    // Check if the released touch is the joystick touch
-    let touchEnded = false;
-    if (e.type === 'touchend' || e.type === 'touchcancel') {
-      for (let i = 0; i < e.changedTouches.length; i++) {
-        if (e.changedTouches[i].identifier === joystickTouchId) {
-          touchEnded = true;
-          break;
-        }
-      }
-    }
-    if (!touchEnded) return;
-
-    // Hide joystick
-    joystickBase.classList.add('d-none');
-    joystickStick.classList.add('d-none');
-
-    // Reset keyboard state
-    keyboard.Left = false;
-    keyboard.Right = false;
-
-    joystickActive = false;
-    joystickTouchId = null;
+function calculateTouchPosition(touch, area) {
+  const rect = area.getBoundingClientRect();
+  return {
+    x: touch.clientX - rect.left,
+    y: touch.clientY - rect.top,
   };
+}
 
-  joystickArea.addEventListener('touchend', endJoystick, { passive: false });
-  joystickArea.addEventListener('touchcancel', endJoystick, { passive: false });
+function calculateStickPosition(touchPos) {
+  const deltaX = touchPos.x - joystickStartX;
+  const deltaY = touchPos.y - joystickStartY;
+  const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+  if (distance > joystickMaxDistance) {
+    const angle = Math.atan2(deltaY, deltaX);
+    return {
+      x: joystickStartX + Math.cos(angle) * joystickMaxDistance,
+      y: joystickStartY + Math.sin(angle) * joystickMaxDistance,
+    };
+  }
+  return touchPos;
+}
+
+function showJoystick(position) {
+  const base = document.getElementById('joystickBase');
+  const stick = document.getElementById('joystickStick');
+
+  base.style.left = position.x + 'px';
+  base.style.top = position.y + 'px';
+  stick.style.left = position.x + 'px';
+  stick.style.top = position.y + 'px';
+
+  base.classList.remove('d-none');
+  stick.classList.remove('d-none');
+}
+
+function updateJoystickVisual(position) {
+  const stick = document.getElementById('joystickStick');
+  stick.style.left = position.x + 'px';
+  stick.style.top = position.y + 'px';
+}
+
+function updateKeyboardFromJoystick(touchPos) {
+  const deltaX = touchPos.x - joystickStartX;
+  const threshold = 20;
+  keyboard.Left = deltaX < -threshold;
+  keyboard.Right = deltaX > threshold;
+}
+
+function findCurrentTouch(touches) {
+  for (let i = 0; i < touches.length; i++) {
+    if (touches[i].identifier === joystickTouchId) {
+      return touches[i];
+    }
+  }
+  return null;
+}
+
+function isCurrentTouchEnded(event) {
+  if (event.type === 'touchend' || event.type === 'touchcancel') {
+    for (let i = 0; i < event.changedTouches.length; i++) {
+      if (event.changedTouches[i].identifier === joystickTouchId) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function hideJoystick() {
+  const base = document.getElementById('joystickBase');
+  const stick = document.getElementById('joystickStick');
+  base.classList.add('d-none');
+  stick.classList.add('d-none');
+}
+
+function resetJoystickState() {
+  keyboard.Left = false;
+  keyboard.Right = false;
+  joystickActive = false;
+  joystickTouchId = null;
 }
 
 window.addEventListener('load', () => {
@@ -258,9 +319,9 @@ function disableContextMenu() {
   const gameContainer = document.getElementById('gameContainer');
   const title = document.getElementById('title');
 
-  [canvas, gameContainer, title, document.body].forEach(element => {
-    element.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
+  [canvas, gameContainer, title, document.body].forEach((element) => {
+    element.addEventListener('contextmenu', (event) => {
+      event.preventDefault();
     });
   });
 }
@@ -275,11 +336,17 @@ function updateSoundButtonIcons() {
   const iconGameEnd = document.getElementById('soundIconGameEnd');
   const iconGame = document.getElementById('soundIconGame');
 
-  const iconSrc = soundManager.isMuted
-    ? 'img_pollo_locco/img/homescreen-icons/mute.png'
-    : 'img_pollo_locco/img/homescreen-icons/volume.png';
+  const iconSrc = getSoundIconPath();
 
   if (iconPause) iconPause.src = iconSrc;
   if (iconGameEnd) iconGameEnd.src = iconSrc;
   if (iconGame) iconGame.src = iconSrc;
+}
+
+function getSoundIconPath() {
+  if (soundManager.isMuted) {
+    return 'img_pollo_locco/img/homescreen-icons/mute.png';
+  } else {
+    return 'img_pollo_locco/img/homescreen-icons/volume.png';
+  }
 }

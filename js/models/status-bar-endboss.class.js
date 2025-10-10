@@ -20,7 +20,7 @@ class StatusBarEndboss extends StatusBar {
 
   setPercentage(percentage) {
     this.percentage = percentage;
-    let path = this.IMAGES_ENDBOSS[this.resolveImageIndex(percentage)];
+    const path = this.IMAGES_ENDBOSS[this.resolveImageIndex(percentage)];
     this.img = this.imageCache[path];
   }
 }

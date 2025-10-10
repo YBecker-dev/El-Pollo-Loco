@@ -564,7 +564,6 @@ h1 {
     transition: opacity 0.1s ease;
 }
 
-/* Right Side: Action Buttons (Fixed Position) */
 .mobile-controls-right {
     position: absolute;
     bottom: 80px;

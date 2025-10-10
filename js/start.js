@@ -2,7 +2,7 @@ function initStartScreen() {
   canvas = document.getElementById('canvas');
   ctx = canvas.getContext('2d');
 
-  let startScreenImage = new Image();
+  const startScreenImage = new Image();
   startScreenImage.src = 'img_pollo_locco/img/9_intro_outro_screens/start/startscreen_1.png';
   startScreenImage.onload = () => {
     ctx.drawImage(startScreenImage, 0, 0, canvas.width, canvas.height);
@@ -14,22 +14,33 @@ function initStartScreen() {
 }
 
 function initBackgroundMusic() {
+  createBackgroundMusicIfNeeded();
+  setupAutoplayWorkaround();
+}
+
+function createBackgroundMusicIfNeeded() {
   if (!soundManager.backgroundMusic) {
     soundManager.backgroundMusic = new Audio('audio/Gameplay/background/background.wav');
     soundManager.backgroundMusic.loop = true;
     soundManager.backgroundMusic.volume = soundManager.volume;
   }
+}
 
-  const playMusic = () => {
-    if (!soundManager.isMuted && soundManager.backgroundMusic.paused) {
-      soundManager.backgroundMusic.play().catch(() => {});
-    }
-    document.removeEventListener('click', playMusic);
-    document.removeEventListener('keydown', playMusic);
-  };
+function setupAutoplayWorkaround() {
+  document.addEventListener('click', startBackgroundMusicOnInteraction, { once: true });
+  document.addEventListener('keydown', startBackgroundMusicOnInteraction, { once: true });
+}
 
-  document.addEventListener('click', playMusic, { once: true });
-  document.addEventListener('keydown', playMusic, { once: true });
+function startBackgroundMusicOnInteraction() {
+  if (!soundManager.isMuted && soundManager.backgroundMusic.paused) {
+    soundManager.backgroundMusic.play().catch(() => {});
+  }
+  removeAutoplayListeners();
+}
+
+function removeAutoplayListeners() {
+  document.removeEventListener('click', startBackgroundMusicOnInteraction);
+  document.removeEventListener('keydown', startBackgroundMusicOnInteraction);
 }
 
 function showStartMenu() {
@@ -60,19 +71,22 @@ function startGame() {
 }
 
 function backToMainMenu() {
+  hideGameEndUIElements();
+  resetGameState();
+  initStartScreen();
+}
+
+function hideGameEndUIElements() {
   document.getElementById('restartButton').classList.add('d-none');
   document.getElementById('mainMenuButton').classList.add('d-none');
   document.getElementById('soundButtonGameEnd').classList.add('d-none');
   document.getElementById('soundButtonGame').classList.remove('show');
   toggleMobileControlsVisibility(false);
+}
 
+function resetGameState() {
   stopGame();
-
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   initLevel();
-
   soundManager.resumeBackgroundMusic();
-
-  initStartScreen();
 }

@@ -59,7 +59,7 @@ class ThrowableObject extends MovableObject {
   }
 
   checkSplashAnimationComplete() {
-    let elapsedTime = Date.now() - this.splashAnimationStartTime;
+    const elapsedTime = Date.now() - this.splashAnimationStartTime;
     if (elapsedTime >= this.BOTTLE_SPLASH_IMAGES.length * 100) {
       this.splashAnimationComplete = true;
       clearStoppableInterval(this.animationInterval);

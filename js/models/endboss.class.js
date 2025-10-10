@@ -77,15 +77,25 @@ class Endboss extends MovableObject {
   hit() {
     if (this.isDead) return;
 
+    this.applyDamage();
+    this.checkForDeath();
+    this.resetHurtStatusAfterDelay();
+  }
+
+  applyDamage() {
     this.health--;
     this.isHurt = true;
     this.hurtTime = new Date().getTime();
     soundManager.playSound('endbossHurt');
+  }
 
+  checkForDeath() {
     if (this.health <= 0) {
       this.die();
     }
+  }
 
+  resetHurtStatusAfterDelay() {
     setTimeout(() => {
       this.isHurt = false;
     }, 500);
@@ -114,9 +124,9 @@ class Endboss extends MovableObject {
 
   checkVisibility() {
     if (this.world && this.world.character) {
-      let characterX = this.world.character.x;
-      let endbossX = this.x;
-      let distance = endbossX - characterX;
+      const characterX = this.world.character.x;
+      const endbossX = this.x;
+      const distance = endbossX - characterX;
 
       if (distance < 720 && !this.isVisible) {
         this.isVisible = true;
@@ -128,7 +138,7 @@ class Endboss extends MovableObject {
 
   moveTowardsPlayer() {
     if (this.isVisible && !this.isDead && this.world && this.world.character) {
-      let characterX = this.world.character.x;
+      const characterX = this.world.character.x;
       if (this.x > characterX + 100) {
         this.x -= this.speed;
       }
@@ -152,13 +162,6 @@ class Endboss extends MovableObject {
   }
 
   resumeAnimations() {
-    this.animationInterval = setStoppableInterval(() => {
-      this.playAnimation(this.getCurrentAnimationSet());
-    }, 100);
-
-    this.movementInterval = setStoppableInterval(() => {
-      this.checkVisibility();
-      this.moveTowardsPlayer();
-    }, 1000 / 60);
+    this.animate();
   }
 }
