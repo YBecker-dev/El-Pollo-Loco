@@ -1,3 +1,8 @@
+/**
+ * Status bar for displaying bottle count
+ * @class
+ * @extends StatusBar
+ */
 class StatusBarBottle extends StatusBar {
   IMAGES_BOTTLE = [
     'img_pollo_locco/img/7_statusbars/1_statusbar/3_statusbar_bottle/green/0.png',
@@ -8,6 +13,10 @@ class StatusBarBottle extends StatusBar {
     'img_pollo_locco/img/7_statusbars/1_statusbar/3_statusbar_bottle/green/100.png',
   ];
 
+  /**
+   * Creates an instance of StatusBarBottle
+   * @constructor
+   */
   constructor() {
     super();
     this.loadImages(this.IMAGES_BOTTLE);
@@ -18,6 +27,10 @@ class StatusBarBottle extends StatusBar {
     this.setPercentage(0);
   }
 
+  /**
+   * Sets the percentage and updates the displayed image
+   * @param {number} percentage - Bottle count percentage (0-100)
+   */
   setPercentage(percentage) {
     this.percentage = percentage;
     const path = this.IMAGES_BOTTLE[this.resolveImageIndex(percentage)];

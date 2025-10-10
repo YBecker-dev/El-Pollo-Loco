@@ -1,5 +1,11 @@
+/**
+ * Global level1 instance.
+ */
 let level1;
 
+/**
+ * Initializes level1 with enemies, clouds, background layers, coins, and bottles.
+ */
 function initLevel() {
   level1 = new Level(
     createEnemies(),
@@ -11,54 +17,78 @@ function initLevel() {
   );
 }
 
+/**
+ * Creates and returns an array of chicken enemies and one endboss for level1.
+ * @returns {Array} Array of enemy objects.
+ */
 function createEnemies() {
-  return [
-    new Chicken('normal'),
-    new Chicken('normal'),
-    new Chicken('normal'),
-    new Chicken('small'),
-    new Chicken('small'),
-    new Endboss(),
-  ];
+  const enemyTypes = ['normal', 'normal', 'normal', 'normal', 'small', 'small', 'small', 'small'];
+  return enemyTypes.map((type) => new Chicken(type)).concat([new Endboss()]);
 }
 
+/**
+ * Creates and returns an array of two cloud objects for level1.
+ * @returns {Array} Array of cloud objects.
+ */
 function createClouds() {
-  return [new Cloud(), new Cloud()];
+  const clouds = [];
+  for (let i = 0; i < 2; i++) {
+    clouds.push(new Cloud());
+  }
+  return clouds;
 }
 
+/**
+ * Creates and returns the first background layer for level1.
+ * @returns {Array} Array of background objects.
+ */
 function createBackgroundLayer1() {
-  return [
-    new BackgroundObject('img_pollo_locco/img/5_background/layers/air.png', 0),
-    new BackgroundObject('img_pollo_locco/img/5_background/layers/3_third_layer/1.png', 0),
-    new BackgroundObject('img_pollo_locco/img/5_background/layers/2_second_layer/1.png', 0),
-    new BackgroundObject('img_pollo_locco/img/5_background/layers/1_first_layer/1.png', 0),
+  const layerPaths = [
+    'img_pollo_locco/img/5_background/layers/air.png',
+    'img_pollo_locco/img/5_background/layers/3_third_layer/1.png',
+    'img_pollo_locco/img/5_background/layers/2_second_layer/1.png',
+    'img_pollo_locco/img/5_background/layers/1_first_layer/1.png',
   ];
+  return layerPaths.map((path) => new BackgroundObject(path, 0));
 }
 
+/**
+ * Creates and returns the second background layer for level1.
+ * @returns {Array} Array of background objects.
+ */
 function createBackgroundLayer2() {
-  return [
-    new BackgroundObject('img_pollo_locco/img/5_background/layers/air.png', 720),
-    new BackgroundObject('img_pollo_locco/img/5_background/layers/3_third_layer/2.png', 720),
-    new BackgroundObject('img_pollo_locco/img/5_background/layers/2_second_layer/2.png', 720),
-    new BackgroundObject('img_pollo_locco/img/5_background/layers/1_first_layer/2.png', 720),
+  const layerPaths = [
+    'img_pollo_locco/img/5_background/layers/air.png',
+    'img_pollo_locco/img/5_background/layers/3_third_layer/2.png',
+    'img_pollo_locco/img/5_background/layers/2_second_layer/2.png',
+    'img_pollo_locco/img/5_background/layers/1_first_layer/2.png',
   ];
+  return layerPaths.map((path) => new BackgroundObject(path, 720));
 }
 
+/**
+ * Creates and returns an array of coin objects positioned at specific locations for level1.
+ * @returns {Array} Array of coin objects.
+ */
 function createCoins() {
-  return [new Coin(300, 100), new Coin(500, 100), new Coin(700, 100), new Coin(900, 150), new Coin(1200, 100)];
+  const coinPositions = [
+    [300, 100],
+    [500, 100],
+    [700, 100],
+    [900, 150],
+    [1200, 100],
+  ];
+  return coinPositions.map(([x, y]) => new Coin(x, y));
 }
 
+/**
+ * Creates and returns an array of bottle objects spaced evenly across level1.
+ * @returns {Array} Array of bottle objects.
+ */
 function createBottles() {
-  return [
-    new Bottle(400, 350),
-    new Bottle(600, 350),
-    new Bottle(800, 350),
-    new Bottle(1000, 350),
-    new Bottle(1200, 350),
-    new Bottle(1400, 350),
-    new Bottle(1600, 350),
-    new Bottle(1800, 350),
-    new Bottle(2000, 350),
-    new Bottle(2200, 350),
-  ];
+  const bottles = [];
+  for (let x = 400; x <= 2800; x += 200) {
+    bottles.push(new Bottle(x, 350));
+  }
+  return bottles;
 }

@@ -1,3 +1,8 @@
+/**
+ * Status bar for displaying coin count
+ * @class
+ * @extends StatusBar
+ */
 class StatusBarCoin extends StatusBar {
   IMAGES_COIN = [
     'img_pollo_locco/img/7_statusbars/1_statusbar/1_statusbar_coin/green/0.png',
@@ -8,6 +13,10 @@ class StatusBarCoin extends StatusBar {
     'img_pollo_locco/img/7_statusbars/1_statusbar/1_statusbar_coin/green/100.png',
   ];
 
+  /**
+   * Creates an instance of StatusBarCoin
+   * @constructor
+   */
   constructor() {
     super();
     this.loadImages(this.IMAGES_COIN);
@@ -18,6 +27,10 @@ class StatusBarCoin extends StatusBar {
     this.setPercentage(0);
   }
 
+  /**
+   * Sets the percentage and updates the displayed image
+   * @param {number} percentage - Coin count percentage (0-100)
+   */
   setPercentage(percentage) {
     this.percentage = percentage;
     const path = this.IMAGES_COIN[this.resolveImageIndex(percentage)];

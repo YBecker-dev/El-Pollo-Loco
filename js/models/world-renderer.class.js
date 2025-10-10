@@ -1,8 +1,19 @@
+/**
+ * World renderer class handling all game drawing operations
+ * @class
+ */
 class WorldRenderer {
+  /**
+   * Creates an instance of WorldRenderer
+   * @constructor
+   */
   constructor(world) {
     this.world = world;
   }
 
+  /**
+   * Main draw function called each frame
+   */
   draw() {
     this.clearCanvas();
     this.drawWorldObjects();
@@ -11,10 +22,16 @@ class WorldRenderer {
     this.continueGameLoop();
   }
 
+  /**
+   * Clears the entire canvas
+   */
   clearCanvas() {
     this.world.ctx.clearRect(0, 0, this.world.canvas.width, this.world.canvas.height);
   }
 
+  /**
+   * Draws all world objects with camera translation
+   */
   drawWorldObjects() {
     this.world.ctx.save();
     this.world.ctx.translate(this.world.camera_x, 0);
@@ -23,6 +40,9 @@ class WorldRenderer {
     this.world.ctx.restore();
   }
 
+  /**
+   * Draws background layer objects
+   */
   drawBackgroundLayer() {
     this.drawBackground();
     this.addObjectsToMap(this.world.level.clouds);
@@ -30,6 +50,9 @@ class WorldRenderer {
     this.drawCollectableBottles();
   }
 
+  /**
+   * Draws game entities (enemies, character, projectiles)
+   */
   drawGameEntities() {
     this.world.ctx.translate(-this.world.camera_x, 0);
     this.world.ctx.translate(this.world.camera_x, 0);
@@ -38,6 +61,9 @@ class WorldRenderer {
     this.addtoMap(this.world.character);
   }
 
+  /**
+   * Draws all status bars
+   */
   drawStatusBars() {
     this.addtoMap(this.world.statusBarCoin);
     this.addtoMap(this.world.statusBarHealth);
@@ -45,6 +71,10 @@ class WorldRenderer {
     this.drawEndbossStatusBar();
   }
 
+  /**
+   * Checks if end screen should be drawn
+   * @returns {boolean} True if end screen is drawn
+   */
   shouldDrawEndScreen() {
     if (this.world.levelCompleted) {
       this.drawYouWinScreen();
@@ -53,6 +83,10 @@ class WorldRenderer {
     return this.checkAndDrawGameOver();
   }
 
+  /**
+   * Checks and draws game over screen if needed
+   * @returns {boolean} True if game over screen is drawn
+   */
   checkAndDrawGameOver() {
     if (this.world.character.energy <= 0 && this.world.character.deathAnimationComplete) {
       this.drawGameOverScreen();
@@ -61,12 +95,18 @@ class WorldRenderer {
     return false;
   }
 
+  /**
+   * Continues the game loop if not paused
+   */
   continueGameLoop() {
     if (!this.world.isPaused) {
       requestAnimationFrame(() => this.draw());
     }
   }
 
+  /**
+   * Draws endboss status bar when endboss is visible
+   */
   drawEndbossStatusBar() {
     this.world.level.enemies.forEach((enemy) => {
       if (enemy instanceof Endboss && enemy.isVisible) {
@@ -75,6 +115,9 @@ class WorldRenderer {
     });
   }
 
+  /**
+   * Draws all enemies with death timing
+   */
   drawEnemies() {
     this.world.level.enemies.forEach((enemy) => {
       if (enemy.isDead) {
@@ -88,6 +131,9 @@ class WorldRenderer {
     });
   }
 
+  /**
+   * Draws uncollected coins
+   */
   drawCoins() {
     this.world.level.coins.forEach((coin) => {
       if (!coin.collected) {
@@ -96,6 +142,9 @@ class WorldRenderer {
     });
   }
 
+  /**
+   * Draws uncollected bottles
+   */
   drawCollectableBottles() {
     this.world.level.bottles.forEach((bottle) => {
       if (!bottle.collected) {
@@ -104,12 +153,18 @@ class WorldRenderer {
     });
   }
 
+  /**
+   * Draws throwable bottles
+   */
   drawThrowableBottles() {
     this.world.throwableObjects.forEach((bottle) => {
       this.addtoMap(bottle);
     });
   }
 
+  /**
+   * Draws background with parallax scrolling
+   */
   drawBackground() {
     for (let i = -1; i < 3; i++) {
       this.drawBackgroundObjects(this.world.level.backgroundObjects, i);
@@ -117,6 +172,11 @@ class WorldRenderer {
     }
   }
 
+  /**
+   * Draws background objects for parallax layers
+   * @param {BackgroundObject[]} backgroundObjects - Background objects array
+   * @param {number} layerIndex - Layer index for parallax
+   */
   drawBackgroundObjects(backgroundObjects, layerIndex) {
     backgroundObjects.forEach((backgroundObject) => {
       const originalX = backgroundObject.x;
@@ -126,10 +186,18 @@ class WorldRenderer {
     });
   }
 
+  /**
+   * Adds multiple objects to the map
+   * @param {MovableObject[]} objects - Array of objects to draw
+   */
   addObjectsToMap(objects) {
     objects.forEach((o) => this.addtoMap(o));
   }
 
+  /**
+   * Adds a single object to the map with proper orientation
+   * @param {MovableObject} mo - Object to draw
+   */
   addtoMap(mo) {
     if (mo.OtherDirection) {
       mo.drawOtherDirection(this.world.ctx);
@@ -140,6 +208,9 @@ class WorldRenderer {
     mo.drawFrame(this.world.ctx);
   }
 
+  /**
+   * Shows game end buttons (restart, main menu, sound)
+   */
   showGameEndButtons() {
     document.getElementById('restartButton').classList.remove('d-none');
     document.getElementById('mainMenuButton').classList.remove('d-none');
@@ -148,6 +219,9 @@ class WorldRenderer {
     toggleMobileControlsVisibility(false);
   }
 
+  /**
+   * Draws the game over screen
+   */
   drawGameOverScreen() {
     this.world.ctx.drawImage(this.world.gameOverImage, 0, 0, this.world.canvas.width, this.world.canvas.height);
 
@@ -159,6 +233,9 @@ class WorldRenderer {
     }
   }
 
+  /**
+   * Draws the you win screen
+   */
   drawYouWinScreen() {
     this.world.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
     this.world.ctx.fillRect(0, 0, this.world.canvas.width, this.world.canvas.height);

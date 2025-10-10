@@ -2,6 +2,10 @@ let offsetX;
 let offsetYTop;
 let offsetYBottom;
 
+/**
+ * Base class for all drawable game objects
+ * @class
+ */
 class DrawableObject {
   img;
   imageCache = {};
@@ -11,11 +15,19 @@ class DrawableObject {
   height = 250;
   width = 150;
 
+  /**
+   * Loads a single image from the specified path
+   * @param {string} path - Path to the image file
+   */
   loadImage(path) {
     this.img = new Image();
     this.img.src = path;
   }
 
+  /**
+   * Loads multiple images into the image cache
+   * @param {string[]} arr - Array of image paths to load
+   */
   loadImages(arr) {
     arr.forEach((path) => {
       const img = new Image();
@@ -24,6 +36,10 @@ class DrawableObject {
     });
   }
 
+  /**
+   * Gets hitbox offset values for character objects
+   * @returns {Object} Object containing offsetX, offsetYTop, and offsetYBottom
+   */
   getCharacterHitboxOffsets() {
     return {
       offsetX: this.width * 0.1,
@@ -32,6 +48,10 @@ class DrawableObject {
     };
   }
 
+  /**
+   * Gets hitbox offset values for chicken objects
+   * @returns {Object} Object containing offsetX, offsetYTop, and offsetYBottom
+   */
   getChickenHitboxOffsets() {
     return {
       offsetX: this.width * 0,
@@ -40,6 +60,10 @@ class DrawableObject {
     };
   }
 
+  /**
+   * Gets hitbox offset values for coin objects
+   * @returns {Object} Object containing offsetX, offsetYTop, and offsetYBottom
+   */
   getCoinHitboxOffsets() {
     return {
       offsetX: this.width * 0.3,
@@ -48,6 +72,11 @@ class DrawableObject {
     };
   }
 
+  /**
+   * Draws a red debug hitbox rectangle on the canvas
+   * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+   * @param {Object} offsets - Hitbox offset values
+   */
   drawHitbox(ctx, offsets) {
     const hitboxX = this.x + offsets.offsetX;
     const hitboxY = this.y + offsets.offsetYTop;
@@ -63,6 +92,10 @@ class DrawableObject {
     ctx.restore();
   }
 
+  /**
+   * Draws the debug hitbox frame if applicable
+   * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+   */
   drawFrame(ctx) {
     const shouldDraw = this.shouldDrawHitbox();
     if (shouldDraw) {
@@ -73,11 +106,19 @@ class DrawableObject {
     }
   }
 
+  /**
+   * Determines if hitbox should be drawn for this object
+   * @returns {boolean} True if object is Chicken, Character, or Coin
+   */
   shouldDrawHitbox() {
     const result = this instanceof Chicken || this instanceof Character || this instanceof Coin;
     return result;
   }
 
+  /**
+   * Gets the appropriate hitbox offsets based on object type
+   * @returns {Object} Object containing offsetX, offsetYTop, and offsetYBottom
+   */
   getHitboxOffsets() {
     if (this instanceof Character) {
       return this.getCharacterHitboxOffsets();
@@ -91,6 +132,10 @@ class DrawableObject {
     return { offsetX: 0, offsetYTop: 0, offsetYBottom: 0 };
   }
 
+  /**
+   * Draws the object image without directional flipping
+   * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+   */
   drawOtherDirectionReset(ctx) {
     if (this.img && this.img.complete) {
       ctx.drawImage(this.img, this.x, this.y, this.width, this.height);

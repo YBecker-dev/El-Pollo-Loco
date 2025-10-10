@@ -1,3 +1,8 @@
+/**
+ * Status bar for displaying endboss health
+ * @class
+ * @extends StatusBar
+ */
 class StatusBarEndboss extends StatusBar {
   IMAGES_ENDBOSS = [
     'img_pollo_locco/img/7_statusbars/2_statusbar_endboss/orange/orange0.png',
@@ -8,6 +13,10 @@ class StatusBarEndboss extends StatusBar {
     'img_pollo_locco/img/7_statusbars/2_statusbar_endboss/orange/orange100.png',
   ];
 
+  /**
+   * Creates an instance of StatusBarEndboss
+   * @constructor
+   */
   constructor() {
     super();
     this.loadImages(this.IMAGES_ENDBOSS);
@@ -18,6 +27,10 @@ class StatusBarEndboss extends StatusBar {
     this.setPercentage(100);
   }
 
+  /**
+   * Sets the percentage and updates the displayed image
+   * @param {number} percentage - Endboss health percentage (0-100)
+   */
   setPercentage(percentage) {
     this.percentage = percentage;
     const path = this.IMAGES_ENDBOSS[this.resolveImageIndex(percentage)];

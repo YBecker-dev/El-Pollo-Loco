@@ -1,3 +1,8 @@
+/**
+ * Status bar for displaying character health
+ * @class
+ * @extends StatusBar
+ */
 class StatusBarHealth extends StatusBar {
   IMAGES_HEALTH = [
     'img_pollo_locco/img/7_statusbars/1_statusbar/2_statusbar_health/green/0.png',
@@ -8,6 +13,10 @@ class StatusBarHealth extends StatusBar {
     'img_pollo_locco/img/7_statusbars/1_statusbar/2_statusbar_health/green/100.png',
   ];
 
+  /**
+   * Creates an instance of StatusBarHealth
+   * @constructor
+   */
   constructor() {
     super();
     this.loadImages(this.IMAGES_HEALTH);
@@ -18,6 +27,10 @@ class StatusBarHealth extends StatusBar {
     this.setPercentage(100);
   }
 
+  /**
+   * Sets the percentage and updates the displayed image
+   * @param {number} percentage - Health percentage (0-100)
+   */
   setPercentage(percentage) {
     this.percentage = percentage;
     const path = this.IMAGES_HEALTH[this.resolveImageIndex(percentage)];

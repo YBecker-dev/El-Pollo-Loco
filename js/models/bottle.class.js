@@ -1,4 +1,13 @@
+/**
+ * Bottle collectable object class
+ * @class
+ * @extends CollectableObject
+ */
 class Bottle extends CollectableObject {
+  /**
+   * Creates an instance of Bottle
+   * @constructor
+   */
   constructor() {
     super();
     this.loadImage('img_pollo_locco/img/6_salsa_bottle/1_salsa_bottle_on_ground.png');
@@ -8,4 +17,3 @@ class Bottle extends CollectableObject {
     this.height = 80;
   }
 }
-

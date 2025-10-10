@@ -1,3 +1,8 @@
+/**
+ * Player character class with movement, animations, and collision detection
+ * @class
+ * @extends MovableObject
+ */
 class Character extends MovableObject {
   IMAGES_WALKING = [
     'img_pollo_locco/img/2_character_pepe/2_walk/W-21.png',
@@ -66,6 +71,10 @@ class Character extends MovableObject {
   deathAnimationComplete = false;
   isSleeping = false;
 
+  /**
+   * Creates an instance of Character
+   * @constructor
+   */
   constructor() {
     super();
     this.initializeCharacter();
@@ -73,12 +82,18 @@ class Character extends MovableObject {
     this.startCharacter();
   }
 
+  /**
+   * Initializes character dimensions and position
+   */
   initializeCharacter() {
     this.width = 125;
     this.height = 350;
     this.y = 100;
   }
 
+  /**
+   * Loads all character animation images
+   */
   loadCharacterImages() {
     this.loadImage('img_pollo_locco/img/2_character_pepe/2_walk/W-21.png');
     this.loadImages(this.IMAGES_WALKING);
@@ -89,11 +104,19 @@ class Character extends MovableObject {
     this.loadImages(this.IMAGES_IDLE_LONG);
   }
 
+  /**
+   * Starts character physics and animations
+   */
   startCharacter() {
     this.applyGravity();
     this.animate();
   }
 
+  /**
+   * Checks collision with another object using precise hitboxes
+   * @param {MovableObject} mo - Object to check collision with
+   * @returns {boolean} True if objects are colliding
+   */
   isColliding(mo) {
     const thisBox = this.getHitbox();
     const moBox = this.getMoBox(mo);
@@ -105,6 +128,11 @@ class Character extends MovableObject {
     );
   }
 
+  /**
+   * Gets hitbox of another object
+   * @param {MovableObject} mo - Object to get hitbox from
+   * @returns {Object} Hitbox dimensions and position
+   */
   getMoBox(mo) {
     if (mo.getHitbox) {
       return mo.getHitbox();
@@ -113,6 +141,11 @@ class Character extends MovableObject {
     }
   }
 
+  /**
+   * Calculates hitbox for an object
+   * @param {Object} obj - Object to calculate hitbox for
+   * @returns {Object} Hitbox with x, y, width, and height
+   */
   calculateHitbox(obj) {
     const offsets = this.getOffsetsForObj(obj);
     return {
@@ -123,6 +156,11 @@ class Character extends MovableObject {
     };
   }
 
+  /**
+   * Gets hitbox offsets for an object
+   * @param {Object} obj - Object to get offsets from
+   * @returns {Object} Offset values
+   */
   getOffsetsForObj(obj) {
     if (obj.getHitboxOffsets) {
       return obj.getHitboxOffsets();
@@ -131,6 +169,10 @@ class Character extends MovableObject {
     }
   }
 
+  /**
+   * Gets the character's hitbox
+   * @returns {Object} Hitbox with x, y, width, and height
+   */
   getHitbox() {
     const offsets = this.getHitboxOffsets();
     return {
@@ -141,6 +183,10 @@ class Character extends MovableObject {
     };
   }
 
+  /**
+   * Gets character-specific hitbox offsets
+   * @returns {Object} Offset values for character
+   */
   getHitboxOffsets() {
     return {
       offsetX: this.width * 0.1,
@@ -149,6 +195,11 @@ class Character extends MovableObject {
     };
   }
 
+  /**
+   * Checks if character is jumping on an enemy
+   * @param {MovableObject} enemy - Enemy to check
+   * @returns {boolean} True if valid jump attack
+   */
   isJumpingOnEnemy(enemy) {
     if (!this.isColliding(enemy) || enemy.isDead) {
       return false;
@@ -156,6 +207,11 @@ class Character extends MovableObject {
     return this.isCharacterLandingOnEnemy(enemy);
   }
 
+  /**
+   * Checks if character is landing on enemy from above
+   * @param {MovableObject} enemy - Enemy to check
+   * @returns {boolean} True if landing on enemy
+   */
   isCharacterLandingOnEnemy(enemy) {
     const characterBottom = this.getCharacterBottom();
     const enemyTop = this.getEnemyTop(enemy);
@@ -163,16 +219,32 @@ class Character extends MovableObject {
     return this.isValidJumpAttack(characterBottom, enemyTop, tolerance);
   }
 
+  /**
+   * Gets the bottom position of the character
+   * @returns {number} Y coordinate of character bottom
+   */
   getCharacterBottom() {
     const offsets = this.getHitboxOffsets();
     return this.y + this.height - offsets.offsetYBottom;
   }
 
+  /**
+   * Gets the top position of an enemy
+   * @param {MovableObject} enemy - Enemy object
+   * @returns {number} Y coordinate of enemy top
+   */
   getEnemyTop(enemy) {
     const offsets = enemy.getHitboxOffsets();
     return enemy.y + offsets.offsetYTop;
   }
 
+  /**
+   * Validates if jump attack is successful
+   * @param {number} characterBottom - Character's bottom Y position
+   * @param {number} enemyTop - Enemy's top Y position
+   * @param {number} tolerance - Collision tolerance value
+   * @returns {boolean} True if valid jump attack
+   */
   isValidJumpAttack(characterBottom, enemyTop, tolerance) {
     const isInAir = this.isAboveGround();
     const isFalling = this.speedY < 10;
@@ -180,11 +252,18 @@ class Character extends MovableObject {
     return isInAir && isFalling && isAboveEnemy;
   }
 
+  /**
+   * Performs jump attack on enemy
+   * @param {MovableObject} enemy - Enemy to attack
+   */
   jumpOnEnemy(enemy) {
     enemy.die();
     this.speedY = 20;
   }
 
+  /**
+   * Checks and handles jump attacks on all enemies
+   */
   checkJumpOnEnemies() {
     if (!this.world || !this.world.level) return;
 
@@ -195,18 +274,28 @@ class Character extends MovableObject {
     });
   }
 
+  /**
+   * Handles character movement logic
+   */
   handleMovement() {
     const moved = this.handleKeyboardInput();
     this.updateMovementTimer(moved);
     this.handleCollisionsAndCamera();
   }
 
+  /**
+   * Handles character animation selection
+   */
   handleAnimation() {
     if (this.shouldStopAnimationForLevelComplete()) return;
     const idleTime = this.getIdleTime();
     this.selectAndPlayAnimation(idleTime);
   }
 
+  /**
+   * Checks if animation should stop for level completion
+   * @returns {boolean} True if level is completed
+   */
   shouldStopAnimationForLevelComplete() {
     if (this.world && this.world.levelCompleted) {
       this.stopSleepingIfActive();
@@ -215,6 +304,9 @@ class Character extends MovableObject {
     return false;
   }
 
+  /**
+   * Stops sleeping sound if character is sleeping
+   */
   stopSleepingIfActive() {
     if (this.isSleeping) {
       soundManager.stopLoopingSound('sleeping');
@@ -222,11 +314,19 @@ class Character extends MovableObject {
     }
   }
 
+  /**
+   * Gets time elapsed since last movement
+   * @returns {number} Idle time in milliseconds
+   */
   getIdleTime() {
     const currentTime = new Date().getTime();
     return currentTime - this.lastMovementTime;
   }
 
+  /**
+   * Selects and plays appropriate animation based on state
+   * @param {number} idleTime - Time since last movement
+   */
   selectAndPlayAnimation(idleTime) {
     if (this.isdead) {
       this.handleDeathAnimation();
@@ -239,6 +339,9 @@ class Character extends MovableObject {
     }
   }
 
+  /**
+   * Handles death animation sequence
+   */
   handleDeathAnimation() {
     if (this.currentImage >= this.IMAGES_DEAD.length) {
       this.finalizeDeathAnimation();
@@ -247,23 +350,36 @@ class Character extends MovableObject {
     }
   }
 
+  /**
+   * Finalizes death animation at last frame
+   */
   finalizeDeathAnimation() {
     this.deathAnimationComplete = true;
     this.currentImage = this.IMAGES_DEAD.length - 1;
     this.img = this.imageCache[this.IMAGES_DEAD[this.currentImage]];
   }
 
+  /**
+   * Handles hurt animation
+   */
   handleHurtAnimation() {
     this.playAnimation(this.IMAGES_HURT);
     this.lastMovementTime = new Date().getTime();
     this.stopSleepingIfActive();
   }
 
+  /**
+   * Handles jump animation
+   */
   handleJumpAnimation() {
     this.playAnimation(this.IMAGES_JUMPING);
     this.stopSleepingIfActive();
   }
 
+  /**
+   * Handles ground animations including walking and idle
+   * @param {number} idleTime - Time since last movement
+   */
   handleGroundAnimation(idleTime) {
     if (this.world.keyboard.Right || this.world.keyboard.Left) {
       this.playAnimation(this.IMAGES_WALKING);
@@ -277,6 +393,10 @@ class Character extends MovableObject {
     }
   }
 
+  /**
+   * Processes keyboard input and returns movement state
+   * @returns {boolean} True if character moved
+   */
   handleKeyboardInput() {
     if (this.isdead) {
       return false;
@@ -289,6 +409,10 @@ class Character extends MovableObject {
     return moved;
   }
 
+  /**
+   * Handles right movement input
+   * @returns {boolean} True if moved right
+   */
   handleRightMovement() {
     if (this.world.keyboard.Right && this.x < this.world.level.level_end_x) {
       this.moveRight();
@@ -298,6 +422,10 @@ class Character extends MovableObject {
     return false;
   }
 
+  /**
+   * Handles left movement input
+   * @returns {boolean} True if moved left
+   */
   handleLeftMovement() {
     if (this.world.keyboard.Left && this.x > 0) {
       this.moveLeft();
@@ -307,6 +435,10 @@ class Character extends MovableObject {
     return false;
   }
 
+  /**
+   * Handles jump input
+   * @returns {boolean} True if jumped
+   */
   handleJumpInput() {
     if (this.world.keyboard.Space && !this.isAboveGround()) {
       this.jump();
@@ -315,6 +447,10 @@ class Character extends MovableObject {
     return false;
   }
 
+  /**
+   * Handles throw input
+   * @returns {boolean} True if throw key is pressed
+   */
   handleThrowInput() {
     if (this.isHurt()) {
       return false;
@@ -322,17 +458,28 @@ class Character extends MovableObject {
     return this.world.keyboard.F;
   }
 
+  /**
+   * Updates last movement time if character moved
+   * @param {boolean} moved - Whether character moved
+   */
   updateMovementTimer(moved) {
     if (moved) {
       this.lastMovementTime = new Date().getTime();
     }
   }
 
+  /**
+   * Handles collision detection and camera positioning
+   */
   handleCollisionsAndCamera() {
     this.checkJumpOnEnemies();
     this.world.camera_x = -this.x + 100;
   }
 
+  /**
+   * Handles idle animation based on idle time
+   * @param {number} idleTime - Time since last movement
+   */
   handleIdleAnimation(idleTime) {
     if (idleTime < 15000) {
       this.playShortIdleAnimation();
@@ -341,16 +488,25 @@ class Character extends MovableObject {
     }
   }
 
+  /**
+   * Plays short idle animation
+   */
   playShortIdleAnimation() {
     this.playAnimation(this.IMAGES_IDLE);
     this.stopSleepingIfActive();
   }
 
+  /**
+   * Plays long idle animation with sleeping sound
+   */
   playLongIdleAnimation() {
     this.startSleepingIfNotActive();
     this.playAnimation(this.IMAGES_IDLE_LONG);
   }
 
+  /**
+   * Starts sleeping sound if not already sleeping
+   */
   startSleepingIfNotActive() {
     if (!this.isSleeping) {
       soundManager.playLoopingSound('sleeping');
@@ -358,17 +514,26 @@ class Character extends MovableObject {
     }
   }
 
+  /**
+   * Starts movement and animation intervals
+   */
   animate() {
     this.movementInterval = setStoppableInterval(() => this.handleMovement(), 1000 / 144);
     this.animationInterval = setStoppableInterval(() => this.handleAnimation(), 150);
   }
 
+  /**
+   * Pauses all character animations and physics
+   */
   pauseAnimations() {
     clearStoppableInterval(this.movementInterval);
     clearStoppableInterval(this.animationInterval);
     this.pauseGravity();
   }
 
+  /**
+   * Resumes all character animations and physics
+   */
   resumeAnimations() {
     this.movementInterval = setStoppableInterval(() => this.handleMovement(), 1000 / 144);
     this.animationInterval = setStoppableInterval(() => this.handleAnimation(), 150);

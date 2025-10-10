@@ -1,3 +1,8 @@
+/**
+ * Enemy chicken class with walking animation and death behavior
+ * @class
+ * @extends MovableObject
+ */
 class Chicken extends MovableObject {
   IMAGES_WALKING = [];
   IMAGES_DEAD = [];
@@ -6,6 +11,11 @@ class Chicken extends MovableObject {
   animationInterval;
   type;
 
+  /**
+   * Creates an instance of Chicken
+   * @constructor
+   * @param {string} type - Type of chicken ('normal' or 'small')
+   */
   constructor(type = 'normal') {
     super();
     this.type = type;
@@ -15,6 +25,9 @@ class Chicken extends MovableObject {
     this.animate();
   }
 
+  /**
+   * Initializes chicken properties based on type
+   */
   initializeChickenType() {
     const folder = this.getChickenFolder();
     const size = this.getChickenSize();
@@ -29,6 +42,10 @@ class Chicken extends MovableObject {
     this.height = size.height;
   }
 
+  /**
+   * Gets image folder path based on chicken type
+   * @returns {string} Folder name for chicken images
+   */
   getChickenFolder() {
     if (this.type === 'small') {
       return 'chicken_small';
@@ -37,6 +54,10 @@ class Chicken extends MovableObject {
     }
   }
 
+  /**
+   * Gets size dimensions based on chicken type
+   * @returns {Object} Width and height of chicken
+   */
   getChickenSize() {
     if (this.type === 'small') {
       return { width: 60, height: 80 };
@@ -45,18 +66,27 @@ class Chicken extends MovableObject {
     }
   }
 
+  /**
+   * Loads all chicken images
+   */
   loadChickenImages() {
     this.loadImage(this.IMAGES_WALKING[0]);
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_DEAD);
   }
 
+  /**
+   * Sets random position and speed for chicken
+   */
   setChickenPosition() {
     this.x = 600 + Math.random() * 3000;
     this.y = 435 - this.height;
     this.speed = 0.1 + Math.random() * 0.25;
   }
 
+  /**
+   * Handles chicken being hit and killed
+   */
   hit() {
     this.isDead = true;
     this.deadTime = new Date().getTime();
@@ -64,10 +94,16 @@ class Chicken extends MovableObject {
     soundManager.playSound('chickenDead');
   }
 
+  /**
+   * Kills the chicken
+   */
   die() {
     this.hit();
   }
 
+  /**
+   * Starts chicken movement and animation intervals
+   */
   animate() {
     this.movementInterval = setStoppableInterval(() => {
       if (!this.isDead) {
@@ -81,11 +117,17 @@ class Chicken extends MovableObject {
     }, 100);
   }
 
+  /**
+   * Pauses chicken animations
+   */
   pauseAnimations() {
     clearStoppableInterval(this.movementInterval);
     clearStoppableInterval(this.animationInterval);
   }
 
+  /**
+   * Resumes chicken animations
+   */
   resumeAnimations() {
     this.animate();
   }

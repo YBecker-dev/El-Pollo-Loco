@@ -1,3 +1,7 @@
+/**
+ * Main game world class managing all game objects and game logic
+ * @class
+ */
 class World {
   character = new Character();
   enemies;
@@ -27,6 +31,12 @@ class World {
   levelCompleted = false;
   renderer;
 
+  /**
+   * Creates an instance of World
+   * @constructor
+   * @param {HTMLCanvasElement} canvas - Game canvas element
+   * @param {Keyboard} keyboard - Keyboard input handler
+   */
   constructor(canvas, keyboard) {
     this.initializeCanvasAndKeyboard(canvas, keyboard);
     this.initializeLevelAndEnemies();
@@ -36,25 +46,42 @@ class World {
     this.loadImages();
   }
 
+  /**
+   * Initializes the world renderer
+   */
   initializeRenderer() {
     this.renderer = new WorldRenderer(this);
   }
 
+  /**
+   * Sets up canvas and keyboard references
+   * @param {HTMLCanvasElement} canvas - Game canvas element
+   * @param {Keyboard} keyboard - Keyboard input handler
+   */
   initializeCanvasAndKeyboard(canvas, keyboard) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.keyboard = keyboard;
   }
 
+  /**
+   * Initializes level and enemy references
+   */
   initializeLevelAndEnemies() {
     this.level = level1;
     this.enemies = level1.enemies;
   }
 
+  /**
+   * Sets up character world reference
+   */
   initializeCharacter() {
     this.character.world = this;
   }
 
+  /**
+   * Starts all main game loops
+   */
   startGameLoops() {
     this.draw();
     this.setWorld();
@@ -63,6 +90,9 @@ class World {
     this.runCollectablesCheck();
   }
 
+  /**
+   * Loads UI images for game over and win screens
+   */
   loadImages() {
     this.gameOverImage.src = 'img_pollo_locco/img/9_intro_outro_screens/game_over/game over!.png';
     this.youWinImage.src = 'img_pollo_locco/img/You won, you lost/You Win A.png';
@@ -70,6 +100,9 @@ class World {
     this.volumeImage.src = 'img_pollo_locco/img/homescreen-icons/volume.png';
   }
 
+  /**
+   * Toggles pause state of the game
+   */
   togglePause() {
     this.isPaused = !this.isPaused;
     if (this.isPaused) {
@@ -79,6 +112,9 @@ class World {
     }
   }
 
+  /**
+   * Pauses the game and all animations
+   */
   pauseGame() {
     this.pauseWorldIntervals();
     this.pauseAllGameObjects();
@@ -86,12 +122,18 @@ class World {
     soundManager.pauseGame();
   }
 
+  /**
+   * Pauses all world update intervals
+   */
   pauseWorldIntervals() {
     clearStoppableInterval(this.collisionInterval);
     clearStoppableInterval(this.throwInterval);
     clearStoppableInterval(this.collectablesInterval);
   }
 
+  /**
+   * Pauses animations for all game objects
+   */
   pauseAllGameObjects() {
     this.character.pauseAnimations();
     this.level.enemies.forEach((enemy) => enemy.pauseAnimations?.());
@@ -99,6 +141,9 @@ class World {
     this.throwableObjects.forEach((bottle) => bottle.pauseAnimations?.());
   }
 
+  /**
+   * Resumes the game and all animations
+   */
   resumeGame() {
     this.resumeWorldIntervals();
     this.resumeAllGameObjects();
@@ -107,12 +152,18 @@ class World {
     this.draw();
   }
 
+  /**
+   * Resumes all world update intervals
+   */
   resumeWorldIntervals() {
     this.run();
     this.runThrowCheck();
     this.runCollectablesCheck();
   }
 
+  /**
+   * Resumes animations for all game objects
+   */
   resumeAllGameObjects() {
     this.character.resumeAnimations();
     this.level.enemies.forEach((enemy) => enemy.resumeAnimations?.());
@@ -120,6 +171,9 @@ class World {
     this.throwableObjects.forEach((bottle) => bottle.resumeAnimations?.());
   }
 
+  /**
+   * Sets world reference for all game objects
+   */
   setWorld() {
     this.character.world = this;
     this.level.enemies.forEach((enemy) => {
@@ -127,6 +181,10 @@ class World {
     });
   }
 
+  /**
+   * Starts the main collision detection loop
+   * @returns {number} Interval ID
+   */
   run() {
     this.collisionInterval = setStoppableInterval(() => {
       if (this.character.isdead) return;
@@ -137,6 +195,10 @@ class World {
     return this.collisionInterval;
   }
 
+  /**
+   * Starts the bottle throwing check loop
+   * @returns {number} Interval ID
+   */
   runThrowCheck() {
     this.throwInterval = setStoppableInterval(() => {
       if (this.character.isdead) return;
@@ -145,6 +207,10 @@ class World {
     return this.throwInterval;
   }
 
+  /**
+   * Starts the collectables collision check loop
+   * @returns {number} Interval ID
+   */
   runCollectablesCheck() {
     this.collectablesInterval = setStoppableInterval(() => {
       if (this.character.isdead) return;
@@ -154,6 +220,9 @@ class World {
     return this.collectablesInterval;
   }
 
+  /**
+   * Checks if player can throw bottles and handles throwing
+   */
   checkThrowableObjects() {
     const currentTime = new Date().getTime();
     const timeSinceLastThrow = currentTime - this.lastThrowTime;
@@ -165,10 +234,19 @@ class World {
     }
   }
 
+  /**
+   * Checks if bottle throwing conditions are met
+   * @param {number} timeSinceLastThrow - Time since last bottle throw
+   * @returns {boolean} True if bottle can be thrown
+   */
   canThrowBottle(timeSinceLastThrow) {
     return this.keyboard.F && this.collectedBottles > 0 && timeSinceLastThrow > 300 && !this.character.isHurt();
   }
 
+  /**
+   * Creates and throws a new bottle
+   * @param {number} currentTime - Current timestamp
+   */
   throwBottle(currentTime) {
     const bottle = new ThrowableObject(this.character.x + 50, this.character.y + 50);
     this.throwableObjects.push(bottle);
@@ -179,6 +257,9 @@ class World {
     this.statusBarBottle.setPercentage(percentage);
   }
 
+  /**
+   * Checks collisions with coins and updates coin status bar
+   */
   checkCollisionsforCoinsStatusBar() {
     this.level.coins.forEach((coin) => {
       if (this.character.isColliding(coin) && !coin.collected) {
@@ -194,6 +275,9 @@ class World {
     });
   }
 
+  /**
+   * Checks collisions with bottles and updates bottle status bar
+   */
   checkCollisionsforBottlesStatusBar() {
     this.level.bottles.forEach((bottle) => {
       if (this.character.isColliding(bottle) && !bottle.collected && this.collectedBottles < 5) {
@@ -206,6 +290,9 @@ class World {
     });
   }
 
+  /**
+   * Checks enemy collisions and updates health status bar
+   */
   checkCollisionsforHealthStatusBar() {
     this.level.enemies.forEach((enemy) => {
       if (this.character.isJumpingOnEnemy(enemy)) {
@@ -216,6 +303,10 @@ class World {
     });
   }
 
+  /**
+   * Handles collision between character and enemy
+   * @param {MovableObject} enemy - Enemy that collided with character
+   */
   handleEnemyCollision(enemy) {
     if (this.character.isColliding(enemy) && !this.character.isHurt() && !enemy.isDead) {
       this.character.hit();
@@ -224,6 +315,9 @@ class World {
     }
   }
 
+  /**
+   * Handles character death when health reaches zero
+   */
   handleCharacterDeath() {
     if (this.character.energy <= 0 && !this.character.isdead) {
       this.character.isdead = true;
@@ -234,11 +328,17 @@ class World {
     }
   }
 
+  /**
+   * Processes bottle collisions with enemies
+   */
   checkBottleCollisions() {
     this.processBottleHits();
     this.removeCompletedBottles();
   }
 
+  /**
+   * Processes hits for all throwable bottles
+   */
   processBottleHits() {
     this.throwableObjects.forEach((bottle) => {
       if (bottle.hit) return;
@@ -246,6 +346,10 @@ class World {
     });
   }
 
+  /**
+   * Checks if a bottle hits any enemy
+   * @param {ThrowableObject} bottle - Bottle to check
+   */
   checkBottleAgainstEnemies(bottle) {
     this.level.enemies.forEach((enemy) => {
       if (this.isBottleHittingEnemy(bottle, enemy)) {
@@ -254,16 +358,31 @@ class World {
     });
   }
 
+  /**
+   * Checks if bottle is hitting a specific enemy
+   * @param {ThrowableObject} bottle - Bottle object
+   * @param {MovableObject} enemy - Enemy object
+   * @returns {boolean} True if bottle hits enemy
+   */
   isBottleHittingEnemy(bottle, enemy) {
     return bottle.isColliding(enemy) && !enemy.isDead;
   }
 
+  /**
+   * Handles bottle hitting an enemy
+   * @param {ThrowableObject} bottle - Bottle that hit
+   * @param {MovableObject} enemy - Enemy that was hit
+   */
   handleBottleHit(bottle, enemy) {
     bottle.hit = true;
     soundManager.playSound('bottleSplash');
     this.applyDamageToEnemy(enemy);
   }
 
+  /**
+   * Applies damage to enemy based on enemy type
+   * @param {MovableObject} enemy - Enemy to damage
+   */
   applyDamageToEnemy(enemy) {
     if (enemy.hit) {
       enemy.hit();
@@ -273,6 +392,10 @@ class World {
     }
   }
 
+  /**
+   * Updates endboss health bar if enemy is endboss
+   * @param {MovableObject} enemy - Enemy to check
+   */
   updateEndbossHealthBar(enemy) {
     if (enemy instanceof Endboss) {
       const percentage = (enemy.health / 5) * 100;
@@ -280,6 +403,9 @@ class World {
     }
   }
 
+  /**
+   * Removes completed bottle splash animations
+   */
   removeCompletedBottles() {
     this.throwableObjects.forEach((bottle, index) => {
       if (bottle.splashAnimationComplete) {
@@ -288,6 +414,9 @@ class World {
     });
   }
 
+  /**
+   * Checks if endboss is defeated and handles level completion
+   */
   checkEndbossDefeated() {
     this.level.enemies.forEach((enemy) => {
       if (enemy instanceof Endboss && enemy.isDead && !this.levelCompleted) {
@@ -301,6 +430,9 @@ class World {
     });
   }
 
+  /**
+   * Draws the game world using the renderer
+   */
   draw() {
     this.renderer.draw();
   }

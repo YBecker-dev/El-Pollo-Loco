@@ -1,3 +1,6 @@
+/**
+ * Shows the steering menu by hiding all other menus and displaying the steering menu.
+ */
 function showSteering() {
   hideAllMenus();
   const steeringMenu = document.getElementById('steeringMenu');
@@ -5,6 +8,9 @@ function showSteering() {
   steeringMenu.classList.remove('d-none');
 }
 
+/**
+ * Navigates back to the start menu with a fade-out animation.
+ */
 function backToStartWithAnimation() {
   const currentMenu = document.querySelector('.menu-screen:not(.d-none)');
   if (currentMenu) {

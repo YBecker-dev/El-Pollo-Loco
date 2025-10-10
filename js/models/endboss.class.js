@@ -1,3 +1,8 @@
+/**
+ * Endboss enemy class with multiple animation states and AI behavior
+ * @class
+ * @extends MovableObject
+ */
 class Endboss extends MovableObject {
   height = 500;
   width = 300;
@@ -53,12 +58,19 @@ class Endboss extends MovableObject {
   animationInterval;
   movementInterval;
 
+  /**
+   * Creates an instance of Endboss
+   * @constructor
+   */
   constructor() {
     super();
     this.loadEndbossImages();
     this.initializeEndboss();
   }
 
+  /**
+   * Loads all endboss animation images
+   */
   loadEndbossImages() {
     this.loadImage(this.IMAGES_WALKING[0]);
     this.loadImages(this.IMAGES_WALKING);
@@ -68,12 +80,18 @@ class Endboss extends MovableObject {
     this.loadImages(this.IMAGES_DEAD);
   }
 
+  /**
+   * Initializes endboss position and properties
+   */
   initializeEndboss() {
     this.x = 4000;
     this.speed = 0.5;
     this.animate();
   }
 
+  /**
+   * Applies damage to the endboss
+   */
   hit() {
     if (this.isDead) return;
 
@@ -82,6 +100,9 @@ class Endboss extends MovableObject {
     this.resetHurtStatusAfterDelay();
   }
 
+  /**
+   * Reduces endboss health and plays hurt sound
+   */
   applyDamage() {
     this.health--;
     this.isHurt = true;
@@ -89,18 +110,27 @@ class Endboss extends MovableObject {
     soundManager.playSound('endbossHurt');
   }
 
+  /**
+   * Checks if endboss should die from damage
+   */
   checkForDeath() {
     if (this.health <= 0) {
       this.die();
     }
   }
 
+  /**
+   * Resets hurt status after delay
+   */
   resetHurtStatusAfterDelay() {
     setTimeout(() => {
       this.isHurt = false;
     }, 500);
   }
 
+  /**
+   * Kills the endboss
+   */
   die() {
     this.isDead = true;
     this.deadTime = new Date().getTime();
@@ -108,6 +138,10 @@ class Endboss extends MovableObject {
     soundManager.playSound('endbossDead');
   }
 
+  /**
+   * Gets the current animation set based on endboss state
+   * @returns {string[]} Array of image paths for current animation
+   */
   getCurrentAnimationSet() {
     if (this.isDead) {
       return this.IMAGES_DEAD;
@@ -122,6 +156,9 @@ class Endboss extends MovableObject {
     }
   }
 
+  /**
+   * Checks if endboss should become visible based on player proximity
+   */
   checkVisibility() {
     if (this.world && this.world.character) {
       const characterX = this.world.character.x;
@@ -135,6 +172,9 @@ class Endboss extends MovableObject {
     }
   }
 
+  /**
+   * Moves endboss towards the player when visible
+   */
   moveTowardsPlayer() {
     if (this.isVisible && !this.isDead && this.world && this.world.character) {
       const characterX = this.world.character.x;
@@ -144,6 +184,9 @@ class Endboss extends MovableObject {
     }
   }
 
+  /**
+   * Starts endboss animation and movement intervals
+   */
   animate() {
     this.animationInterval = setStoppableInterval(() => {
       this.playAnimation(this.getCurrentAnimationSet());
@@ -155,11 +198,17 @@ class Endboss extends MovableObject {
     }, 1000 / 60);
   }
 
+  /**
+   * Pauses endboss animations
+   */
   pauseAnimations() {
     clearStoppableInterval(this.animationInterval);
     clearStoppableInterval(this.movementInterval);
   }
 
+  /**
+   * Resumes endboss animations
+   */
   resumeAnimations() {
     this.animate();
   }
