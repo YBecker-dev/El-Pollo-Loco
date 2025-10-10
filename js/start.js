@@ -14,6 +14,7 @@ function initStartScreen() {
   initBackgroundMusic();
 
   showStartMenu();
+  setupClickOutsideMenus();
 }
 
 /**
@@ -125,4 +126,43 @@ function resetGameState() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   initLevel();
   soundManager.resumeBackgroundMusic();
+}
+
+/**
+ * Sets up click-outside functionality for all menu screens.
+ * Clicking outside a menu container will close the menu and return to start screen.
+ */
+function setupClickOutsideMenus() {
+  const menuContainer = document.getElementById('menuContainer');
+  menuContainer.addEventListener('click', handleMenuOutsideClick);
+}
+
+/**
+ * Handles clicks outside menu containers to close them.
+ * @param {Event} event - The click event.
+ */
+function handleMenuOutsideClick(event) {
+  if (event.target.closest('button') || event.target.closest('.icon-button')) {
+    return;
+  }
+  const menus = getMenuVisibility();
+  if (menus.isOptionsVisible && !event.target.closest('.options-container')) {
+    backToStartWithAnimation();
+  } else if (menus.isSteeringVisible && !event.target.closest('.steering-container')) {
+    backToStartWithAnimation();
+  } else if (menus.isImpressumVisible && !event.target.closest('.impressum-container')) {
+    showStartMenu();
+  }
+}
+
+/**
+ * Gets the visibility state of all menu screens.
+ * @returns {Object} Object containing visibility flags for each menu.
+ */
+function getMenuVisibility() {
+  return {
+    isOptionsVisible: !document.getElementById('optionsMenu').classList.contains('d-none'),
+    isSteeringVisible: !document.getElementById('steeringMenu').classList.contains('d-none'),
+    isImpressumVisible: !document.getElementById('impressumMenu').classList.contains('d-none'),
+  };
 }

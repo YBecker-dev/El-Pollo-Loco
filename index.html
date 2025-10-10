@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="de" translate="no">
   <head>
     <meta charset="UTF-8" />
@@ -29,10 +30,16 @@
     <script src="js/models/coin.class.js"></script>
     <script src="js/models/bottle.class.js"></script>
     <script src="levels/level1.js"></script>
+    <script src="js/utils/sound-manager-fade.js"></script>
+    <script src="js/utils/character-animation.js"></script>
+    <script src="js/utils/character-collision.js"></script>
+    <script src="js/utils/world-collision.js"></script>
     <script src="js/options.js"></script>
     <script src="js/steering.js"></script>
     <script src="js/Impressum.js"></script>
     <script src="js/start.js"></script>
+    <script src="js/mobile-controls.js"></script>
+    <script src="js/keyboard-input.js"></script>
     <script src="js/game.js"></script>
   </head>
   <body onload="initStartScreen()">
@@ -50,7 +57,6 @@
 
             <button class="icon-button" id="steeringButton" onclick="showSteering()" title="Steering">
               <img class="icon-homescreen" src="/img_pollo_locco/img/homescreen-icons/buttons.png" alt="" />
-              </span>
             </button>
           </div>
 
@@ -61,8 +67,7 @@
           </div>
 
           <button class="play-button" onclick="startGame()">
-            <img src="/img_pollo_locco/img/homescreen-icons/play-button.png" alt="">
-            </span>
+            <img src="/img_pollo_locco/img/homescreen-icons/play-button.png" alt="" />
           </button>
         </div>
 
@@ -92,22 +97,37 @@
           </div>
         </div>
 
-        <!-- Steering Menu -->
         <div id="steeringMenu" class="menu-screen d-none">
           <div class="steering-container">
             <h2 class="menu-title">Steering</h2>
-            <p class="steering-text">→ / D: Move right</p>
-            <p class="steering-text">← / A: Move left</p>
-            <p class="steering-text">↑ / W / Space: Jump</p>
-            <p class="steering-text">F: Throw bottle</p>
-            <p class="steering-text">ESC: Pause game</p>
+            <div class="steering-content">
+              <div class="steering-row">
+                <span class="steering-action">Move right</span>
+                <span class="steering-keys">→ / D</span>
+              </div>
+              <div class="steering-row">
+                <span class="steering-action">Move left</span>
+                <span class="steering-keys">← / A</span>
+              </div>
+              <div class="steering-row">
+                <span class="steering-action">Jump</span>
+                <span class="steering-keys">↑ / W / Space</span>
+              </div>
+              <div class="steering-row">
+                <span class="steering-action">Throw bottle</span>
+                <span class="steering-keys">F</span>
+              </div>
+              <div class="steering-row">
+                <span class="steering-action">Pause game</span>
+                <span class="steering-keys">ESC</span>
+              </div>
+            </div>
             <div class="steering-row-button">
               <button class="menu-button back-button" onclick="backToStartWithAnimation()">Back</button>
             </div>
           </div>
         </div>
 
-        <!-- Impressum Menu -->
         <div id="impressumMenu" class="menu-screen d-none">
           <div class="impressum-container">
             <h2 class="menu-title">Impressum</h2>
@@ -136,29 +156,26 @@
           Back to Menu
         </button>
         <button id="soundButtonPause" class="sound-button" onclick="toggleSoundButton()">
-          <img id="soundIconPause" src="img_pollo_locco/img/homescreen-icons/volume.png" alt="Sound">
+          <img id="soundIconPause" src="img_pollo_locco/img/homescreen-icons/volume.png" alt="Sound" />
         </button>
       </div>
 
       <button id="restartButton" class="game-is-over-button d-none" onclick="restartGame()">Restart</button>
       <button id="mainMenuButton" class="game-is-over-button d-none" onclick="backToMainMenu()">Back to Menu</button>
       <button id="soundButtonGameEnd" class="sound-button d-none" onclick="toggleSoundButton()">
-        <img id="soundIconGameEnd" src="img_pollo_locco/img/homescreen-icons/volume.png" alt="Sound">
+        <img id="soundIconGameEnd" src="img_pollo_locco/img/homescreen-icons/volume.png" alt="Sound" />
       </button>
 
       <button id="soundButtonGame" class="sound-button" onclick="toggleSoundButton()">
-        <img id="soundIconGame" src="img_pollo_locco/img/homescreen-icons/volume.png" alt="Sound">
+        <img id="soundIconGame" src="img_pollo_locco/img/homescreen-icons/volume.png" alt="Sound" />
       </button>
 
-      <!-- Virtual Joystick Controls -->
       <div id="mobileControls" class="mobile-controls d-none">
-        <!-- Left side: Virtual Joystick (invisible touch area) -->
         <div id="joystickArea" class="joystick-area">
           <div id="joystickBase" class="joystick-base d-none"></div>
           <div id="joystickStick" class="joystick-stick d-none"></div>
         </div>
 
-        <!-- Right side: Action buttons (fixed position) -->
         <div class="mobile-controls-right">
           <button id="btnJump" class="mobile-action-btn">
             <span class="btn-icon">↑</span>

@@ -30,7 +30,7 @@ body {
 
 @font-face {
     font-family: 'rye';
-    src: url('/font/Rye-Regular.ttf') format('truetype');
+    src: url('/font/Zabars.ttf') format('truetype');
 }
 
 /* Menu Screens */
@@ -199,7 +199,7 @@ body {
 }
 
 .option-label {
-    font-size: 24px;
+    font-size: 32px;
     font-family: 'rye', Arial, Helvetica, sans-serif;
     color: #555;
     min-width: 150px;
@@ -262,8 +262,8 @@ body {
 }
 
 .volume-value {
-    font-size: 20px;
-    font-family: 'rye', Arial, Helvetica, sans-serif;
+    font-size: 24px;
+    font-family: 'zabras', Arial, Helvetica, sans-serif;
     color: #555;
     min-width: 60px;
 }
@@ -310,11 +310,26 @@ body {
     width: auto;
 }
 
+.steering-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 20px;
+    color: #555;
+}
+
+.steering-row {
+    display: flex;
+    justify-content: space-between;
+        border-bottom: solid 1px #555;
+}
+
 .steering-text {
     font-size: 20px;
     font-family: 'rye', Arial, Helvetica, sans-serif;
     color: #555;
     margin: 0;
+    border-bottom: solid 2px;
 }
 
 .steering-row-button {
@@ -830,16 +845,16 @@ h1 {
 }
 
 .impressum-section-title {
-    font-size: 20px;
-    font-family: 'rye', Arial, Helvetica, sans-serif;
+    font-size: 24px;
+    font-family: 'zabras', Arial, Helvetica, sans-serif;
     color: #333;
     margin: 0;
     flex-shrink: 0;
 }
 
 .impressum-text {
-    font-size: 16px;
-    font-family: 'rye', Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    font-family: 'zabras', Arial, Helvetica, sans-serif;
     color: #555;
     margin: 0;
     line-height: 1.6;
