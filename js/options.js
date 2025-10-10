@@ -4,9 +4,25 @@ let volume = 100;
 
 function showOptions() {
   hideAllMenus();
-  document.getElementById('optionsMenu').classList.remove('d-none');
+  const optionsMenu = document.getElementById('optionsMenu');
+  optionsMenu.style.animation = '';
+  optionsMenu.classList.remove('d-none');
   adjustOptionsContainerWidth();
   window.addEventListener('resize', adjustOptionsContainerWidth);
+  syncOptionsWithSoundManager();
+}
+
+function syncOptionsWithSoundManager() {
+  const toggleBtn = document.getElementById('soundToggle');
+  const volumeSlider = document.getElementById('volumeSlider');
+  const volumeValue = document.getElementById('volumeValue');
+
+  soundEnabled = !soundManager.isMuted;
+  updateSoundButton(toggleBtn);
+
+  const currentVolume = Math.round(soundManager.volume * 100);
+  volumeSlider.value = currentVolume;
+  volumeValue.textContent = currentVolume + '%';
 }
 
 function adjustOptionsContainerWidth() {
@@ -21,8 +37,10 @@ function adjustOptionsContainerWidth() {
 
 function toggleSound() {
   soundEnabled = !soundEnabled;
+  soundManager.toggleMute();
   const toggleBtn = document.getElementById('soundToggle');
   updateSoundButton(toggleBtn);
+  updateSoundButtonIcons();
 }
 
 function updateSoundButton(toggleBtn) {
@@ -41,6 +59,7 @@ function setSoundButtonState(toggleBtn, text, addClassName, removeClassName) {
 
 function updateVolume(value) {
   volume = value;
+  soundManager.setVolume(value);
   document.getElementById('volumeValue').textContent = value + '%';
 }
 

@@ -172,6 +172,14 @@ class Character extends MovableObject {
   }
 
   handleAnimation() {
+    if (this.world && this.world.levelCompleted) {
+      if (this.isSleeping) {
+        soundManager.stopLoopingSound('sleeping');
+        this.isSleeping = false;
+      }
+      return;
+    }
+
     let currentTime = new Date().getTime();
     let idleTime = currentTime - this.lastMovementTime;
 
@@ -186,8 +194,16 @@ class Character extends MovableObject {
     } else if (this.isHurt()) {
       this.playAnimation(this.IMAGES_HURT);
       this.lastMovementTime = currentTime;
+      if (this.isSleeping) {
+        soundManager.stopLoopingSound('sleeping');
+        this.isSleeping = false;
+      }
     } else if (this.isAboveGround()) {
       this.playAnimation(this.IMAGES_JUMPING);
+      if (this.isSleeping) {
+        soundManager.stopLoopingSound('sleeping');
+        this.isSleeping = false;
+      }
     } else {
       this.handleGroundAnimation(idleTime);
     }
@@ -197,6 +213,10 @@ class Character extends MovableObject {
     if (this.world.keyboard.Right || this.world.keyboard.Left) {
       this.playAnimation(this.IMAGES_WALKING);
       this.lastMovementTime = new Date().getTime();
+      if (this.isSleeping) {
+        soundManager.stopLoopingSound('sleeping');
+        this.isSleeping = false;
+      }
     } else {
       this.handleIdleAnimation(idleTime);
     }

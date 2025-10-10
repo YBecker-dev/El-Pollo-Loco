@@ -5,14 +5,50 @@ class SoundManager {
         this.backgroundMusic = null;
         this.isPaused = false;
         this.isGameOver = false;
+        this.volume = this.loadVolumeFromStorage();
+    }
+
+    loadVolumeFromStorage() {
+        const savedVolume = localStorage.getItem('gameVolume');
+        return savedVolume !== null ? parseFloat(savedVolume) : 1.0;
+    }
+
+    saveVolumeToStorage() {
+        localStorage.setItem('gameVolume', this.volume.toString());
     }
 
     addSound(name, path) {
         this.sounds[name] = new Audio(path);
+        this.sounds[name].volume = this.volume;
+    }
+
+    setVolume(volumePercent) {
+        this.volume = volumePercent / 100;
+        Object.values(this.sounds).forEach(sound => {
+            sound.volume = this.volume;
+        });
+        if (this.backgroundMusic) {
+            this.backgroundMusic.volume = this.volume;
+        }
+        this.saveVolumeToStorage();
     }
 
     playSound(name) {
         if (!this.isMuted && !this.isPaused && !this.isGameOver && this.sounds[name]) {
+            this.sounds[name].currentTime = 0;
+            this.sounds[name].play().catch(() => {});
+        }
+    }
+
+    playEndScreenSound(name) {
+        if (!this.isMuted && this.sounds[name]) {
+            this.sounds[name].currentTime = 0;
+            this.sounds[name].play().catch(() => {});
+        }
+    }
+
+    playPauseSound(name) {
+        if (!this.isMuted && this.sounds[name]) {
             this.sounds[name].currentTime = 0;
             this.sounds[name].play().catch(() => {});
         }
@@ -42,14 +78,9 @@ class SoundManager {
             this.backgroundMusic = new Audio(path);
             this.backgroundMusic.loop = true;
         }
+        this.backgroundMusic.volume = this.volume;
         if (!this.isMuted) {
             this.backgroundMusic.play().catch(() => {});
-        }
-    }
-
-    stopBackgroundMusic() {
-        if (this.backgroundMusic) {
-            this.backgroundMusic.pause();
         }
     }
 
@@ -93,7 +124,16 @@ class SoundManager {
 
     pauseGame() {
         this.isPaused = true;
-        this.pauseAllSounds();
+        this.pauseAllSoundsExceptPause();
+    }
+
+    pauseAllSoundsExceptPause() {
+        Object.keys(this.sounds).forEach(name => {
+            const sound = this.sounds[name];
+            if (!sound.paused && name !== 'pause') {
+                sound.pause();
+            }
+        });
     }
 
     resumeGame() {
@@ -121,7 +161,13 @@ class SoundManager {
             this.backgroundMusic.play().catch(() => {});
         }
     }
+
+    stopBackgroundMusic() {
+        if (this.backgroundMusic) {
+            this.backgroundMusic.pause();
+            this.backgroundMusic.currentTime = 0;
+        }
+    }
 }
 
-// Globale Instanz
 let soundManager = new SoundManager();

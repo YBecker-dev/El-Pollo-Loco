@@ -56,6 +56,7 @@ class World {
   pauseGame() {
     this.pauseWorldIntervals();
     this.pauseAllGameObjects();
+    soundManager.playPauseSound('pause');
     soundManager.pauseGame();
   }
 
@@ -76,6 +77,7 @@ class World {
     this.resumeWorldIntervals();
     this.resumeAllGameObjects();
     soundManager.resumeGame();
+    soundManager.playSound('unpause');
     this.draw();
   }
 
@@ -192,8 +194,8 @@ class World {
       if (this.character.energy <= 0 && !this.character.isdead) {
         this.character.isdead = true;
         this.character.currentImage = 0;
-        soundManager.playSound('dead');
         soundManager.gameOver();
+        soundManager.playEndScreenSound('dead');
         clearStoppableInterval(this.collisionInterval);
       }
     });
@@ -232,6 +234,7 @@ class World {
         let timeSinceDeath = (new Date().getTime() - enemy.deadTime) / 1000;
         if (timeSinceDeath > 1) {
           this.levelCompleted = true;
+          soundManager.stopBackgroundMusic();
           soundManager.gameOver();
         }
       }
@@ -388,6 +391,8 @@ class World {
 
     if (this.gameOverStartTime === null) {
       this.gameOverStartTime = new Date().getTime();
+      soundManager.stopBackgroundMusic();
+      soundManager.playEndScreenSound('youLose');
       this.showGameEndButtons();
     }
   }
@@ -400,6 +405,7 @@ class World {
 
     if (this.youWinStartTime === null) {
       this.youWinStartTime = new Date().getTime();
+      soundManager.playEndScreenSound('youWin');
       this.showGameEndButtons();
     }
   }

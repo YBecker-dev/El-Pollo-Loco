@@ -8,12 +8,35 @@ function initStartScreen() {
     ctx.drawImage(startScreenImage, 0, 0, canvas.width, canvas.height);
   };
 
+  initBackgroundMusic();
+
   showStartMenu();
+}
+
+function initBackgroundMusic() {
+  if (!soundManager.backgroundMusic) {
+    soundManager.backgroundMusic = new Audio('audio/Gameplay/background/background.wav');
+    soundManager.backgroundMusic.loop = true;
+    soundManager.backgroundMusic.volume = soundManager.volume;
+  }
+
+  const playMusic = () => {
+    if (!soundManager.isMuted && soundManager.backgroundMusic.paused) {
+      soundManager.backgroundMusic.play().catch(() => {});
+    }
+    document.removeEventListener('click', playMusic);
+    document.removeEventListener('keydown', playMusic);
+  };
+
+  document.addEventListener('click', playMusic, { once: true });
+  document.addEventListener('keydown', playMusic, { once: true });
 }
 
 function showStartMenu() {
   hideAllMenus();
-  document.getElementById('startMenu').classList.remove('d-none');
+  const startMenu = document.getElementById('startMenu');
+  startMenu.style.animation = '';
+  startMenu.classList.remove('d-none');
 }
 
 function hideAllMenus() {
@@ -30,6 +53,7 @@ function startGame() {
 
   toggleMobileControlsVisibility(true);
   document.getElementById('soundButtonGame').classList.add('show');
+  updateSoundButtonIcons();
 
   initLevel();
   init();
@@ -47,6 +71,8 @@ function backToMainMenu() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   initLevel();
+
+  soundManager.resumeBackgroundMusic();
 
   initStartScreen();
 }

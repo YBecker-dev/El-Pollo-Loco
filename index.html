@@ -149,14 +149,22 @@
         <img id="soundIconGame" src="img_pollo_locco/img/homescreen-icons/volume.png" alt="Sound">
       </button>
 
+      <!-- Virtual Joystick Controls -->
       <div id="mobileControls" class="mobile-controls d-none">
-        <div class="mobile-controls-left">
-          <button id="btnLeft" class="mobile-btn">←</button>
-          <button id="btnRight" class="mobile-btn">→</button>
+        <!-- Left side: Virtual Joystick (invisible touch area) -->
+        <div id="joystickArea" class="joystick-area">
+          <div id="joystickBase" class="joystick-base d-none"></div>
+          <div id="joystickStick" class="joystick-stick d-none"></div>
         </div>
+
+        <!-- Right side: Action buttons (fixed position) -->
         <div class="mobile-controls-right">
-          <button id="btnJump" class="mobile-btn">↑</button>
-          <button id="btnThrow" class="mobile-btn">↷</button>
+          <button id="btnJump" class="mobile-action-btn">
+            <span class="btn-icon">↑</span>
+          </button>
+          <button id="btnThrow" class="mobile-action-btn">
+            <span class="btn-icon">↷</span>
+          </button>
         </div>
       </div>
     </div>

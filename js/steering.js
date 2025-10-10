@@ -1,6 +1,8 @@
 function showSteering() {
   hideAllMenus();
-  document.getElementById('steeringMenu').classList.remove('d-none');
+  const steeringMenu = document.getElementById('steeringMenu');
+  steeringMenu.style.animation = '';
+  steeringMenu.classList.remove('d-none');
 }
 
 function backToStartWithAnimation() {

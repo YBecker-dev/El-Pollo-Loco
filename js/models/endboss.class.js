@@ -80,6 +80,7 @@ class Endboss extends MovableObject {
     this.health--;
     this.isHurt = true;
     this.hurtTime = new Date().getTime();
+    soundManager.playSound('endbossHurt');
 
     if (this.health <= 0) {
       this.die();
@@ -93,6 +94,8 @@ class Endboss extends MovableObject {
   die() {
     this.isDead = true;
     this.deadTime = new Date().getTime();
+    soundManager.stopLoopingSound('endbossAlert');
+    soundManager.playSound('endbossDead');
   }
 
   getCurrentAnimationSet() {
@@ -117,6 +120,8 @@ class Endboss extends MovableObject {
 
       if (distance < 720 && !this.isVisible) {
         this.isVisible = true;
+        soundManager.stopBackgroundMusic();
+        soundManager.playLoopingSound('endbossAlert');
       }
     }
   }

@@ -1,4 +1,6 @@
 function showImpressum() {
   hideAllMenus();
-  document.getElementById('impressumMenu').classList.remove('d-none');
+  const impressumMenu = document.getElementById('impressumMenu');
+  impressumMenu.style.animation = '';
+  impressumMenu.classList.remove('d-none');
 }

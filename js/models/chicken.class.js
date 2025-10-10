@@ -45,6 +45,7 @@ class Chicken extends MovableObject {
     this.isDead = true;
     this.deadTime = new Date().getTime();
     this.loadImage(this.IMAGES_DEAD[0]);
+    soundManager.playSound('chickenDead');
   }
 
   die() {
