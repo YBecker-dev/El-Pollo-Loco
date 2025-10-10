@@ -7,9 +7,9 @@ class CollectableObject extends DrawableObject {
 
   getHitboxOffsets() {
     return {
-      xWidth: 0,
-      yTop: 0,
-      yBottom: 0,
+      offsetX: 0,
+      offsetYTop: 0,
+      offsetYBottom: 0,
     };
   }
 }

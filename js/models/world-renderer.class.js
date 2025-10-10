@@ -131,13 +131,13 @@ class WorldRenderer {
   }
 
   addtoMap(mo) {
-    mo.drawFrame(this.world.ctx);
-
     if (mo.OtherDirection) {
       mo.drawOtherDirection(this.world.ctx);
     } else {
       mo.drawOtherDirectionReset(this.world.ctx);
     }
+
+    mo.drawFrame(this.world.ctx);
   }
 
   showGameEndButtons() {

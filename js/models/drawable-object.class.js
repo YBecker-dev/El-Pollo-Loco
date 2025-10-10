@@ -54,32 +54,41 @@ class DrawableObject {
     const hitboxWidth = this.width - 2 * offsets.offsetX;
     const hitboxHeight = this.height - offsets.offsetYTop - offsets.offsetYBottom;
 
+    ctx.save();
     ctx.beginPath();
-    ctx.lineWidth = '5';
+    ctx.lineWidth = 3;
     ctx.strokeStyle = 'red';
     ctx.rect(hitboxX, hitboxY, hitboxWidth, hitboxHeight);
     ctx.stroke();
+    ctx.restore();
   }
 
   drawFrame(ctx) {
-    if (this.shouldDrawHitbox()) {
+    const shouldDraw = this.shouldDrawHitbox();
+    if (shouldDraw) {
       const offsets = this.getHitboxOffsets();
-      this.drawHitbox(ctx, offsets);
+      if (offsets) {
+        this.drawHitbox(ctx, offsets);
+      }
     }
   }
 
   shouldDrawHitbox() {
-    return this instanceof Chicken || this instanceof Character || this instanceof Coin;
+    const result = this instanceof Chicken || this instanceof Character || this instanceof Coin;
+    return result;
   }
 
   getHitboxOffsets() {
     if (this instanceof Character) {
       return this.getCharacterHitboxOffsets();
-    } else if (this instanceof Chicken) {
+    }
+    if (this instanceof Chicken) {
       return this.getChickenHitboxOffsets();
-    } else if (this instanceof Coin) {
+    }
+    if (this instanceof Coin) {
       return this.getCoinHitboxOffsets();
     }
+    return { offsetX: 0, offsetYTop: 0, offsetYBottom: 0 };
   }
 
   drawOtherDirectionReset(ctx) {

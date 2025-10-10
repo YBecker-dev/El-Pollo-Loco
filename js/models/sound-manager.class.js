@@ -221,6 +221,84 @@ class SoundManager {
       this.backgroundMusic.currentTime = 0;
     }
   }
+
+  getStartVolume() {
+    if (this.isMuted) {
+      return 0;
+    }
+    return this.volume;
+  }
+
+  initializeFadeOutSound(sound, startVolume) {
+    if (sound && !this.isMuted) {
+      sound.volume = startVolume;
+    }
+  }
+
+  initializeFadeInSound(sound) {
+    sound.volume = 0;
+    sound.loop = true;
+    sound.currentTime = 0;
+    sound.play().catch(() => {});
+  }
+
+  updateFadeOutVolume(sound, startVolume, volumeStep, step) {
+    if (sound && !this.isMuted) {
+      sound.volume = Math.max(0, startVolume - (volumeStep * step));
+    }
+  }
+
+  updateFadeInVolume(sound, volumeStep, step) {
+    if (!this.isMuted) {
+      sound.volume = Math.min(this.volume, volumeStep * step);
+    }
+  }
+
+  finalizeFadeOut(sound) {
+    if (sound) {
+      sound.pause();
+      sound.currentTime = 0;
+    }
+  }
+
+  crossfadeBackgroundToSound(toSoundName, duration = 1000) {
+    if (!this.sounds[toSoundName]) {
+      return;
+    }
+    const params = this.setupCrossfadeParams(duration);
+    this.executeCrossfade(this.backgroundMusic, this.sounds[toSoundName], params);
+  }
+
+  crossfadeSoundToBackground(fromSoundName, duration = 1000) {
+    if (!this.sounds[fromSoundName] || !this.backgroundMusic) {
+      return;
+    }
+    const params = this.setupCrossfadeParams(duration);
+    this.executeCrossfade(this.sounds[fromSoundName], this.backgroundMusic, params);
+  }
+
+  setupCrossfadeParams(duration) {
+    const steps = 50;
+    const stepTime = duration / steps;
+    const startVolume = this.getStartVolume();
+    const volumeStep = this.volume / steps;
+    return { steps, stepTime, startVolume, volumeStep };
+  }
+
+  executeCrossfade(fromSound, toSound, params) {
+    this.initializeFadeOutSound(fromSound, params.startVolume);
+    this.initializeFadeInSound(toSound);
+    let currentStep = 0;
+    const interval = setInterval(() => {
+      currentStep++;
+      this.updateFadeOutVolume(fromSound, params.startVolume, params.volumeStep, currentStep);
+      this.updateFadeInVolume(toSound, params.volumeStep, currentStep);
+      if (currentStep >= params.steps) {
+        clearInterval(interval);
+        this.finalizeFadeOut(fromSound);
+      }
+    }, params.stepTime);
+  }
 }
 
 let soundManager = new SoundManager();

@@ -59,7 +59,7 @@ class Character extends MovableObject {
     'img_pollo_locco/img/2_character_pepe/1_idle/long_idle/I-20.png',
   ];
   world;
-  speed = 10;
+  speed = 2;
   lastMovementTime = new Date().getTime();
   movementInterval;
   animationInterval;
@@ -116,10 +116,10 @@ class Character extends MovableObject {
   calculateHitbox(obj) {
     const offsets = this.getOffsetsForObj(obj);
     return {
-      x: obj.x + offsets.xWidth,
-      y: obj.y + offsets.yTop,
-      width: obj.width - 2 * offsets.xWidth,
-      height: obj.height - offsets.yTop - offsets.yBottom,
+      x: obj.x + offsets.offsetX,
+      y: obj.y + offsets.offsetYTop,
+      width: obj.width - 2 * offsets.offsetX,
+      height: obj.height - offsets.offsetYTop - offsets.offsetYBottom,
     };
   }
 
@@ -127,25 +127,25 @@ class Character extends MovableObject {
     if (obj.getHitboxOffsets) {
       return obj.getHitboxOffsets();
     } else {
-      return { xWidth: 0, yTop: 0, yBottom: 0 };
+      return { offsetX: 0, offsetYTop: 0, offsetYBottom: 0 };
     }
   }
 
   getHitbox() {
     const offsets = this.getHitboxOffsets();
     return {
-      x: this.x + offsets.xWidth,
-      y: this.y + offsets.yTop,
-      width: this.width - 2 * offsets.xWidth,
-      height: this.height - offsets.yTop - offsets.yBottom,
+      x: this.x + offsets.offsetX,
+      y: this.y + offsets.offsetYTop,
+      width: this.width - 2 * offsets.offsetX,
+      height: this.height - offsets.offsetYTop - offsets.offsetYBottom,
     };
   }
 
   getHitboxOffsets() {
     return {
-      xWidth: this.width * 0.1,
-      yTop: this.height * 0.35,
-      yBottom: this.height * 0.03,
+      offsetX: this.width * 0.1,
+      offsetYTop: this.height * 0.35,
+      offsetYBottom: this.height * 0.03,
     };
   }
 
@@ -165,12 +165,12 @@ class Character extends MovableObject {
 
   getCharacterBottom() {
     const offsets = this.getHitboxOffsets();
-    return this.y + this.height - offsets.yBottom;
+    return this.y + this.height - offsets.offsetYBottom;
   }
 
   getEnemyTop(enemy) {
     const offsets = enemy.getHitboxOffsets();
-    return enemy.y + offsets.yTop;
+    return enemy.y + offsets.offsetYTop;
   }
 
   isValidJumpAttack(characterBottom, enemyTop, tolerance) {
