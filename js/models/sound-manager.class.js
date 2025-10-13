@@ -10,8 +10,8 @@ class SoundManager {
     this.isPaused = false;
     this.isGameOver = false;
     this.volume = this.loadVolumeFromStorage();
-    // Track which sounds are background music (should pause/resume on mute/unmute)
     this.backgroundMusicSounds = ['sleeping', 'endbossAlert', 'youWin', 'youLose'];
+    this.soundManagerFade = new SoundManagerFade(this);
   }
 
   /**

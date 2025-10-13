@@ -1,6 +1,16 @@
 /**
  * Mobile Controls Module - Handles virtual joystick and mobile button input
+ * - joystickActive: Flag indicating if the virtual joystick is currently active.
+ * - joystickTouchId: Identifier of the current joystick touch.
+ * - joystickStartX: Starting X position of the joystick touch.
+ * - joystickStartY: Starting Y position of the joystick touch.
+ * - joystickMaxDistance: Maximum distance the joystick can move from its start position.
  */
+let joystickActive = false;
+let joystickTouchId = null;
+let joystickStartX = 0;
+let joystickStartY = 0;
+let joystickMaxDistance = 60;
 
 /**
  * Binds touch event handlers to a mobile button for keyboard simulation.

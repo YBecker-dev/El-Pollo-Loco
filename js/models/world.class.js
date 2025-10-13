@@ -44,6 +44,7 @@ class World {
     this.initializeRenderer();
     this.startGameLoops();
     this.loadImages();
+    this.worldCollision = new WorldCollision(this);
   }
 
   /**
@@ -188,9 +189,9 @@ class World {
   run() {
     this.collisionInterval = setStoppableInterval(() => {
       if (this.character.isdead) return;
-      this.checkCollisionsforHealthStatusBar();
-      this.checkBottleCollisions();
-      this.checkEndbossDefeated();
+      this.worldCollision.checkCollisionsforHealthStatusBar();
+      this.worldCollision.checkBottleCollisions();
+      this.worldCollision.checkEndbossDefeated();
     }, 200);
     return this.collisionInterval;
   }
@@ -202,7 +203,7 @@ class World {
   runThrowCheck() {
     this.throwInterval = setStoppableInterval(() => {
       if (this.character.isdead) return;
-      this.checkThrowableObjects();
+      this.worldCollision.checkThrowableObjects();
     }, 50);
     return this.throwInterval;
   }
@@ -214,8 +215,8 @@ class World {
   runCollectablesCheck() {
     this.collectablesInterval = setStoppableInterval(() => {
       if (this.character.isdead) return;
-      this.checkCollisionsforCoinsStatusBar();
-      this.checkCollisionsforBottlesStatusBar();
+      this.worldCollision.checkCollisionsforCoinsStatusBar();
+      this.worldCollision.checkCollisionsforBottlesStatusBar();
     }, 1000 / 60);
     return this.collectablesInterval;
   }

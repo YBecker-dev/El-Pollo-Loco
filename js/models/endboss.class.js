@@ -134,7 +134,7 @@ class Endboss extends MovableObject {
   die() {
     this.isDead = true;
     this.deadTime = new Date().getTime();
-    soundManager.crossfadeSoundToBackground('endbossAlert', 1500);
+    soundManager.soundManagerFade.crossfadeSoundToBackground('endbossAlert', 1500);
     soundManager.playSound('endbossDead');
   }
 
@@ -167,7 +167,7 @@ class Endboss extends MovableObject {
 
       if (distance < 550 && !this.isVisible) {
         this.isVisible = true;
-        soundManager.crossfadeBackgroundToSound('endbossAlert', 2000);
+        soundManager.soundManagerFade.crossfadeBackgroundToSound('endbossAlert', 2000);
       }
     }
   }

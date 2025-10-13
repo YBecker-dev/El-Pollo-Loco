@@ -4,21 +4,12 @@
  * - keyboard: Keyboard input handler instance.
  * - canvas: Canvas element for rendering the game.
  * - ctx: 2D rendering context of the canvas.
- * - joystickActive: Flag indicating if the virtual joystick is currently active.
- * - joystickTouchId: Identifier of the current joystick touch.
- * - joystickStartX: Starting X position of the joystick touch.
- * - joystickStartY: Starting Y position of the joystick touch.
- * - joystickMaxDistance: Maximum distance the joystick can move from its start position.
  */
 let world;
 let keyboard = new Keyboard();
 let canvas;
 let ctx;
-let joystickActive = false;
-let joystickTouchId = null;
-let joystickStartX = 0;
-let joystickStartY = 0;
-let joystickMaxDistance = 60;
+
 
 /**
  * Initializes the game by setting up the canvas, sounds, and creating the game world.

@@ -77,6 +77,9 @@ class Character extends MovableObject {
    */
   constructor() {
     super();
+    this.animator = new CharacterAnimator(this);
+    this.animation = new CharacterAnimation(this);
+    this.collision = new CharacterCollision(this);
     this.initializeCharacter();
     this.loadCharacterImages();
     this.startCharacter();
@@ -118,7 +121,7 @@ class Character extends MovableObject {
   handleMovement() {
     const moved = this.handleKeyboardInput();
     this.updateMovementTimer(moved);
-    this.handleCollisionsAndCamera();
+    this.collision.handleCollisionsAndCamera()
   }
 
   /**
@@ -201,7 +204,7 @@ class Character extends MovableObject {
    */
   animate() {
     this.movementInterval = setStoppableInterval(() => this.handleMovement(), 1000 / 144);
-    this.animationInterval = setStoppableInterval(() => this.handleAnimation(), 150);
+    this.animationInterval = setStoppableInterval(() => this.animator.handleAnimation(), 150);
   }
 
   /**
@@ -218,7 +221,7 @@ class Character extends MovableObject {
    */
   resumeAnimations() {
     this.movementInterval = setStoppableInterval(() => this.handleMovement(), 1000 / 144);
-    this.animationInterval = setStoppableInterval(() => this.handleAnimation(), 150);
+    this.animationInterval = setStoppableInterval(() => this.animator.handleAnimation(), 150);
     this.resumeGravity();
   }
 }
