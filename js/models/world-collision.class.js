@@ -39,11 +39,12 @@ class WorldCollision {
   }
 
   /**
-   * Creates and throws a new bottle
+   * Creates and throws a new bottle in character's facing direction
    * @param {number} currentTime - Current timestamp
    */
   throwBottle(currentTime) {
-    const bottle = new ThrowableObject(this.world.character.x + 50, this.world.character.y + 50);
+    const throwLeft = this.world.character.OtherDirection;
+    const bottle = new ThrowableObject(this.world.character.x + 50, this.world.character.y + 50, throwLeft);
     this.world.throwableObjects.push(bottle);
     soundManager.playSound('bottleThrow');
     this.world.collectedBottles--;

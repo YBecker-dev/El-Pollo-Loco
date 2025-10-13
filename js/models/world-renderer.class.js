@@ -116,7 +116,7 @@ class WorldRenderer {
   }
 
   /**
-   * Draws all enemies with death timing
+   * Draws all enemies with death timing and invulnerability effects
    */
   drawEnemies() {
     this.world.level.enemies.forEach((enemy) => {
@@ -126,9 +126,39 @@ class WorldRenderer {
           this.addtoMap(enemy);
         }
       } else {
-        this.addtoMap(enemy);
+        this.drawEnemyWithEffects(enemy);
       }
     });
+  }
+
+  /**
+   * Draws enemy with visual effects (like invulnerability blink)
+   * @param {MovableObject} enemy - Enemy to draw
+   */
+  drawEnemyWithEffects(enemy) {
+    if (enemy instanceof Endboss && enemy.isInvulnerable) {
+      this.drawEndbossWithBlinkEffect(enemy);
+    } else {
+      this.addtoMap(enemy);
+    }
+  }
+
+  /**
+   * Draws endboss with blinking effect during invulnerability
+   * @param {Endboss} endboss - Endboss to draw
+   */
+  drawEndbossWithBlinkEffect(endboss) {
+    const blinkInterval = 150;
+    const timeSinceHit = new Date().getTime() - endboss.lastHitTime;
+    const shouldShow = Math.floor(timeSinceHit / blinkInterval) % 2 === 0;
+
+    if (shouldShow) {
+      this.world.ctx.globalAlpha = 0.3;
+      this.addtoMap(endboss);
+      this.world.ctx.globalAlpha = 1.0;
+    } else {
+      this.addtoMap(endboss);
+    }
   }
 
   /**
@@ -227,7 +257,6 @@ class WorldRenderer {
 
     if (this.world.gameOverStartTime === null) {
       this.world.gameOverStartTime = new Date().getTime();
-      soundManager.stopBackgroundMusic();
       soundManager.playEndScreenSound('youLose');
       this.showGameEndButtons();
     }

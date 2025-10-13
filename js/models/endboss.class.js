@@ -57,6 +57,9 @@ class Endboss extends MovableObject {
   isVisible = false;
   animationInterval;
   movementInterval;
+  lastHitTime = 0;
+  hitCooldown = 1500;
+  isInvulnerable = false;
 
   /**
    * Creates an instance of Endboss
@@ -85,19 +88,38 @@ class Endboss extends MovableObject {
    */
   initializeEndboss() {
     this.x = 4000;
-    this.speed = 0.5;
+    this.speed = 1.5;
     this.animate();
   }
 
   /**
-   * Applies damage to the endboss
+   * Applies damage to the endboss with cooldown to prevent spam attacks
    */
   hit() {
     if (this.isDead) return;
 
+    const currentTime = new Date().getTime();
+    const timeSinceLastHit = currentTime - this.lastHitTime;
+
+    if (timeSinceLastHit < this.hitCooldown) {
+      return;
+    }
+
+    this.lastHitTime = currentTime;
+    this.isInvulnerable = true;
     this.applyDamage();
     this.checkForDeath();
     this.resetHurtStatusAfterDelay();
+    this.resetInvulnerabilityAfterCooldown();
+  }
+
+  /**
+   * Resets invulnerability flag after cooldown period
+   */
+  resetInvulnerabilityAfterCooldown() {
+    setTimeout(() => {
+      this.isInvulnerable = false;
+    }, this.hitCooldown);
   }
 
   /**
@@ -160,28 +182,64 @@ class Endboss extends MovableObject {
    * Checks if endboss should become visible based on player proximity
    */
   checkVisibility() {
-    if (this.world && this.world.character) {
-      const characterX = this.world.character.x;
-      const endbossX = this.x;
-      const distance = endbossX - characterX;
-
-      if (distance < 550 && !this.isVisible) {
-        this.isVisible = true;
-        soundManager.soundManagerFade.crossfadeBackgroundToSound('endbossAlert', 2000);
-      }
+    if (this.shouldBecomeVisible()) {
+      this.makeVisible();
+      this.startEndbossMusic();
     }
   }
 
   /**
+   * Checks if endboss should become visible
+   * @returns {boolean} True if should become visible
+   */
+  shouldBecomeVisible() {
+    if (!this.world || !this.world.character || this.isVisible) return false;
+    const distance = this.x - this.world.character.x;
+    return distance < 550;
+  }
+
+  /**
+   * Makes endboss visible
+   */
+  makeVisible() {
+    this.isVisible = true;
+  }
+
+  /**
+   * Starts endboss music (only once)
+   */
+  startEndbossMusic() {
+    if (soundManager.endbossMusicStarted) return;
+    soundManager.endbossMusicStarted = true;
+    soundManager.soundManagerFade.crossfadeBackgroundToSound('endbossAlert', 2000);
+  }
+
+  /**
    * Moves endboss towards the player when visible
+   * Speed increases after taking 2 hits (health <= 3)
    */
   moveTowardsPlayer() {
     if (this.isVisible && !this.isDead && this.world && this.world.character) {
       const characterX = this.world.character.x;
       if (this.x > characterX + 100) {
-        this.x -= this.speed;
+        const currentSpeed = this.getCurrentSpeed();
+        this.x -= currentSpeed;
       }
     }
+  }
+
+  /**
+   * Gets current movement speed based on health
+   * @returns {number} Current speed (increases as health decreases)
+   */
+  getCurrentSpeed() {
+    if (this.health <= 2) {
+      return this.speed * 3.1;
+    }
+    if (this.health <= 3) {
+      return this.speed * 2.5;
+    }
+    return this.speed;
   }
 
   /**

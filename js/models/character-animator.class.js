@@ -57,7 +57,7 @@ class CharacterAnimator {
    */
   selectAndPlayAnimation(idleTime) {
     if (this.character.isdead) {
-      this.character.playAnimation(this.character.IMAGES_DEAD);
+      this.animation.handleDeathAnimation();
     } else if (this.character.isHurt()) {
       this.character.playAnimation(this.character.IMAGES_HURT);
     } else if (this.character.isAboveGround()) {

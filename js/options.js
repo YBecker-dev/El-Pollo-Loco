@@ -92,6 +92,7 @@ function updateVolume(value) {
   volume = value;
   soundManager.setVolume(value);
   document.getElementById('volumeValue').textContent = value + '%';
+  playHoverSound();
 }
 
 /**

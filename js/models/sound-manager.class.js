@@ -4,14 +4,14 @@
  */
 class SoundManager {
   constructor() {
-    this.isMuted = false;
     this.sounds = {};
-    this.backgroundMusic = null;
     this.isPaused = false;
     this.isGameOver = false;
     this.volume = this.loadVolumeFromStorage();
-    this.backgroundMusicSounds = ['sleeping', 'endbossAlert', 'youWin', 'youLose'];
+    this.isMuted = this.loadMuteStateFromStorage();
+    this.backgroundMusicSounds = ['background', 'sleeping', 'endbossAlert', 'youWin', 'youLose'];
     this.soundManagerFade = new SoundManagerFade(this);
+    this.endbossMusicStarted = false;
   }
 
   /**
@@ -35,6 +35,26 @@ class SoundManager {
   }
 
   /**
+   * Loads mute state from local storage
+   * @returns {boolean} Saved mute state or default false
+   */
+  loadMuteStateFromStorage() {
+    const savedMuteState = localStorage.getItem('gameMuted');
+    if (savedMuteState !== null) {
+      return savedMuteState === 'true';
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Saves current mute state to local storage
+   */
+  saveMuteStateToStorage() {
+    localStorage.setItem('gameMuted', this.isMuted.toString());
+  }
+
+  /**
    * Adds a sound to the sound manager
    * @param {string} name - Name identifier for the sound
    * @param {string} path - Path to the audio file
@@ -53,9 +73,6 @@ class SoundManager {
     Object.values(this.sounds).forEach((sound) => {
       sound.volume = this.volume;
     });
-    if (this.backgroundMusic) {
-      this.backgroundMusic.volume = this.volume;
-    }
     this.saveVolumeToStorage();
   }
 
@@ -96,53 +113,12 @@ class SoundManager {
   }
 
   /**
-   * Plays a sound in a continuous loop
-   * @param {string} name - Name of the sound to loop
-   */
-  playLoopingSound(name) {
-    if (!this.isMuted && !this.isPaused && !this.isGameOver && this.sounds[name]) {
-      const sound = this.sounds[name];
-      if (sound.paused || sound.currentTime === 0) {
-        sound.loop = true;
-        sound.play().catch(() => {});
-      }
-    }
-  }
-
-  /**
-   * Stops a looping sound
-   * @param {string} name - Name of the sound to stop
-   */
-  stopLoopingSound(name) {
-    if (this.sounds[name]) {
-      const sound = this.sounds[name];
-      sound.loop = false;
-      sound.pause();
-      sound.currentTime = 0;
-    }
-  }
-
-  /**
-   * Starts playing background music
-   * @param {string} path - Path to the background music file
-   */
-  playBackgroundMusic(path) {
-    if (!this.backgroundMusic) {
-      this.backgroundMusic = new Audio(path);
-      this.backgroundMusic.loop = true;
-    }
-    this.backgroundMusic.volume = this.volume;
-    if (!this.isMuted) {
-      this.backgroundMusic.play().catch(() => {});
-    }
-  }
-
-  /**
    * Toggles mute state for all sounds
    * @returns {boolean} New mute state
    */
   toggleMute() {
     this.isMuted = !this.isMuted;
+    this.saveMuteStateToStorage();
     if (this.isMuted) {
       this.muteAllSounds();
     } else {
@@ -152,27 +128,50 @@ class SoundManager {
   }
 
   /**
-   * Mutes all currently playing sounds
+   * Mutes all sounds (sets volume to 0 for all sounds)
    */
   muteAllSounds() {
-    this.pauseBackgroundMusicSounds();
-    this.pauseMainBackgroundMusic();
+    this.setBackgroundMusicVolume(0);
     this.setEffectSoundsVolume(0);
   }
 
   /**
-   * Unmutes all sounds and resumes playback
+   * Unmutes all sounds (restores volume for all sounds)
    */
   unmuteAllSounds() {
-    this.resumeBackgroundMusicSounds();
-    this.resumeMainBackgroundMusic();
+    this.setBackgroundMusicVolume(this.volume);
     this.setEffectSoundsVolume(this.volume);
+    this.startBackgroundMusicIfNotPlaying();
+  }
+
+  /**
+   * Starts background music if it's not currently playing
+   * and no other background music is playing
+   */
+  startBackgroundMusicIfNotPlaying() {
+    const bgMusic = this.sounds['background'];
+    if (!bgMusic) return;
+    if (this.isAnyBackgroundMusicSoundPlaying()) return;
+    if (bgMusic.paused && bgMusic.currentTime === 0) {
+      bgMusic.play().catch(() => {});
+    }
+  }
+
+  /**
+   * Checks if any background music sound is currently playing
+   * @returns {boolean} True if any background music sound is playing
+   */
+  isAnyBackgroundMusicSoundPlaying() {
+    return this.backgroundMusicSounds.some((name) => {
+      const sound = this.sounds[name];
+      return sound && !sound.paused && sound.currentTime > 0;
+    });
   }
 
   /**
    * Pauses all background music sounds
    */
-  pauseBackgroundMusicSounds() {
+  pauseAllBackgroundMusic() {
     this.backgroundMusicSounds.forEach((name) => {
       if (this.sounds[name] && !this.sounds[name].paused) {
         this.sounds[name].pause();
@@ -183,7 +182,7 @@ class SoundManager {
   /**
    * Resumes all background music sounds
    */
-  resumeBackgroundMusicSounds() {
+  resumeAllBackgroundMusic() {
     this.backgroundMusicSounds.forEach((name) => {
       const sound = this.sounds[name];
       if (sound && sound.currentTime > 0 && sound.paused && sound.currentTime < sound.duration) {
@@ -193,21 +192,15 @@ class SoundManager {
   }
 
   /**
-   * Pauses the main background music
+   * Sets volume for background music sounds
+   * @param {number} volume - Volume level to set
    */
-  pauseMainBackgroundMusic() {
-    if (this.backgroundMusic && !this.backgroundMusic.paused) {
-      this.backgroundMusic.pause();
-    }
-  }
-
-  /**
-   * Resumes the main background music
-   */
-  resumeMainBackgroundMusic() {
-    if (this.backgroundMusic && this.backgroundMusic.currentTime > 0 && this.backgroundMusic.paused) {
-      this.backgroundMusic.play().catch(() => {});
-    }
+  setBackgroundMusicVolume(volume) {
+    this.backgroundMusicSounds.forEach((name) => {
+      if (this.sounds[name]) {
+        this.sounds[name].volume = volume;
+      }
+    });
   }
 
   /**
@@ -222,27 +215,6 @@ class SoundManager {
     });
   }
 
-  /**
-   * Pauses all sounds
-   */
-  pauseAllSounds() {
-    Object.values(this.sounds).forEach((sound) => {
-      if (!sound.paused) {
-        sound.pause();
-      }
-    });
-  }
-
-  /**
-   * Resumes all sounds that were playing
-   */
-  resumeAllSounds() {
-    Object.values(this.sounds).forEach((sound) => {
-      if (sound.currentTime > 0 && sound.paused && sound.currentTime < sound.duration) {
-        sound.play().catch(() => {});
-      }
-    });
-  }
 
   /**
    * Stops all sounds and resets their position
@@ -255,31 +227,17 @@ class SoundManager {
   }
 
   /**
-   * Pauses the game and all sounds
+   * Pauses the game (only effect sounds, not background music)
    */
   pauseGame() {
     this.isPaused = true;
-    this.pauseAllSoundsExceptPause();
   }
 
   /**
-   * Pauses all sounds except the pause sound itself
-   */
-  pauseAllSoundsExceptPause() {
-    Object.keys(this.sounds).forEach((name) => {
-      const sound = this.sounds[name];
-      if (!sound.paused && name !== 'pause') {
-        sound.pause();
-      }
-    });
-  }
-
-  /**
-   * Resumes the game and all sounds
+   * Resumes the game (effect sounds only)
    */
   resumeGame() {
     this.isPaused = false;
-    this.resumeAllSounds();
   }
 
   /**
@@ -288,6 +246,7 @@ class SoundManager {
   gameOver() {
     this.isGameOver = true;
     this.stopAllSounds();
+    this.stopBackgroundMusic();
   }
 
   /**
@@ -297,32 +256,38 @@ class SoundManager {
     this.isGameOver = false;
   }
 
-  /**
-   * Pauses background music
-   */
-  pauseBackgroundMusic() {
-    if (this.backgroundMusic && !this.isMuted) {
-      this.backgroundMusic.pause();
-    }
-  }
 
   /**
-   * Resumes background music
-   */
-  resumeBackgroundMusic() {
-    if (this.backgroundMusic && !this.isMuted) {
-      this.backgroundMusic.play().catch(() => {});
-    }
-  }
-
-  /**
-   * Stops background music and resets position
+   * Stops all background music sounds (background, sleeping, endbossAlert, etc.)
    */
   stopBackgroundMusic() {
-    if (this.backgroundMusic) {
-      this.backgroundMusic.pause();
-      this.backgroundMusic.currentTime = 0;
+    this.backgroundMusicSounds.forEach((name) => {
+      if (this.sounds[name]) {
+        this.sounds[name].pause();
+        this.sounds[name].currentTime = 0;
+      }
+    });
+  }
+
+  /**
+   * Starts background music from the beginning
+   */
+  startBackgroundMusic() {
+    const bgMusic = this.sounds['background'];
+    if (!bgMusic) return;
+    bgMusic.currentTime = 0;
+    bgMusic.volume = this.volume;
+    bgMusic.loop = true;
+    if (!this.isMuted) {
+      bgMusic.play().catch(() => {});
     }
+  }
+
+  /**
+   * Resets endboss music flag
+   */
+  resetEndbossMusic() {
+    this.endbossMusicStarted = false;
   }
 }
 

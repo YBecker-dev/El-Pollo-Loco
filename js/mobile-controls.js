@@ -62,9 +62,31 @@ function toggleMobileControlsVisibility(show) {
 function setupMobileControls() {
   if (window.innerWidth <= 1370) {
     setupVirtualJoystick();
+    showInitialJoystick();
     bindMobileButton('btnJump', 'Space');
     bindMobileButton('btnThrow', 'F');
   }
+}
+
+/**
+ * Shows the joystick at an initial default position (bottom-left area).
+ */
+function showInitialJoystick() {
+  const joystickArea = document.getElementById('joystickArea');
+  const rect = joystickArea.getBoundingClientRect();
+  const initialX = 150;
+  const initialY = rect.height - 75;
+
+  const base = document.getElementById('joystickBase');
+  const stick = document.getElementById('joystickStick');
+
+  base.style.left = initialX + 'px';
+  base.style.top = initialY + 'px';
+  stick.style.left = initialX + 'px';
+  stick.style.top = initialY + 'px';
+
+  base.classList.remove('d-none');
+  stick.classList.remove('d-none');
 }
 
 /**
@@ -125,7 +147,7 @@ function handleJoystickTouchEnd(event) {
   if (!joystickActive) return;
 
   if (isCurrentTouchEnded(event)) {
-    hideJoystick();
+    resetJoystickToInitialPosition();
     resetJoystickState();
   }
 }
@@ -233,13 +255,21 @@ function isCurrentTouchEnded(event) {
 }
 
 /**
- * Hides the virtual joystick elements by adding the 'd-none' class.
+ * Resets the joystick to its initial position (bottom-left area).
  */
-function hideJoystick() {
+function resetJoystickToInitialPosition() {
+  const joystickArea = document.getElementById('joystickArea');
+  const rect = joystickArea.getBoundingClientRect();
+  const initialX = 250;
+  const initialY = rect.height - 75;
+
   const base = document.getElementById('joystickBase');
   const stick = document.getElementById('joystickStick');
-  base.classList.add('d-none');
-  stick.classList.add('d-none');
+
+  base.style.left = initialX + 'px';
+  base.style.top = initialY + 'px';
+  stick.style.left = initialX + 'px';
+  stick.style.top = initialY + 'px';
 }
 
 /**
@@ -253,16 +283,18 @@ function resetJoystickState() {
 }
 
 /**
- * Disables the context menu for specified elements to prevent right-click interactions.
+ * Disables the context menu for mobile control buttons only to prevent right-click interactions.
  */
 function disableContextMenu() {
-  const canvas = document.getElementById('canvas');
-  const gameContainer = document.getElementById('gameContainer');
-  const title = document.getElementById('title');
+  const btnJump = document.getElementById('btnJump');
+  const btnThrow = document.getElementById('btnThrow');
+  const joystickArea = document.getElementById('joystickArea');
 
-  [canvas, gameContainer, title, document.body].forEach((element) => {
-    element.addEventListener('contextmenu', (event) => {
-      event.preventDefault();
-    });
+  [btnJump, btnThrow, joystickArea].forEach((element) => {
+    if (element) {
+      element.addEventListener('contextmenu', (event) => {
+        event.preventDefault();
+      });
+    }
   });
 }

@@ -62,6 +62,7 @@ function initializeGameplaySounds() {
   soundManager.addSound('unpause', 'audio/Gameplay/unpause/unpause.wav');
   soundManager.addSound('youWin', 'audio/Gameplay/you-win/you-win.wav');
   soundManager.addSound('youLose', 'audio/Gameplay/you-lose/you-lose,wav.mp3');
+  soundManager.addSound('hover', 'audio/startscreen/hover/hover-buttons.mp3');
 }
 
 /**
@@ -112,11 +113,12 @@ function cleanupGameState() {
 }
 
 /**
- * Restarts the game logic by initializing the level, resuming background music, and calling the init function.
+ * Restarts the game logic by initializing the level, restarting background music, and calling the init function.
  */
 function restartGameLogic() {
   initLevel();
-  soundManager.resumeBackgroundMusic();
+  soundManager.resetEndbossMusic();
+  soundManager.startBackgroundMusic();
   init();
 }
 

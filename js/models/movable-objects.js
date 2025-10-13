@@ -74,7 +74,7 @@ class MovableObject extends DrawableObject {
    * Makes the object jump with upward velocity
    */
   jump() {
-    this.speedY = 30;
+    this.speedY = 25;
     soundManager.playSound('jump');
   }
 
@@ -87,8 +87,8 @@ class MovableObject extends DrawableObject {
       this.energy = 0;
     } else {
       this.lastHit = new Date().getTime();
-      soundManager.playSound('hurt');
     }
+    soundManager.playSound('hurt');
   }
 
   /**

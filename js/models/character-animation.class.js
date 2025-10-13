@@ -69,11 +69,16 @@ class CharacterAnimation {
   }
 
   handleJumpAnimation() {
+    if (!this.character.isJumping) {
+      this.character.currentImage = 0;
+      this.character.isJumping = true;
+    }
     this.character.playAnimation(this.character.IMAGES_JUMPING);
     this.stopSleepingIfActive();
   }
 
   handleGroundAnimation(idleTime) {
+    this.character.isJumping = false;
     if (this.character.world.keyboard.Right || this.character.world.keyboard.Left) {
       this.character.playAnimation(this.character.IMAGES_WALKING);
       this.character.lastMovementTime = new Date().getTime();

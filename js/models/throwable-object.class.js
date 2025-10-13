@@ -31,8 +31,9 @@ class ThrowableObject extends MovableObject {
    * @constructor
    * @param {number} x - X position to throw from
    * @param {number} y - Y position to throw from
+   * @param {boolean} throwLeft - True if throwing left, false for right
    */
-  constructor(x, y) {
+  constructor(x, y, throwLeft = false) {
     super().loadImage('img_pollo_locco/img/6_salsa_bottle/bottle_rotation/1_bottle_rotation.png');
     this.loadImages(this.BOTTLE_ROTATION_IMAGES);
     this.loadImages(this.BOTTLE_SPLASH_IMAGES);
@@ -40,6 +41,8 @@ class ThrowableObject extends MovableObject {
     this.y = y + 100;
     this.height = 80;
     this.width = 50;
+    this.throwLeft = throwLeft;
+    this.OtherDirection = throwLeft;
     this.throw();
     this.animate();
   }
@@ -90,13 +93,17 @@ class ThrowableObject extends MovableObject {
   }
 
   /**
-   * Throws the bottle with physics
+   * Throws the bottle with physics in the specified direction
    */
   throw() {
     this.speedY = 20;
     this.applyGravity();
+    let direction = 1;
+    if (this.throwLeft) {
+      direction = -1;
+    }
     this.throwInterval = setStoppableInterval(() => {
-      this.x += 10;
+      this.x += 10 * direction;
     }, 25);
   }
 
@@ -113,9 +120,28 @@ class ThrowableObject extends MovableObject {
    * Resumes bottle animations and physics
    */
   resumeAnimations() {
+    this.resumeThrowInterval();
+    this.resumeAnimationInterval();
+    this.resumeGravity();
+  }
+
+  /**
+   * Resumes throw movement interval
+   */
+  resumeThrowInterval() {
+    let direction = 1;
+    if (this.throwLeft) {
+      direction = -1;
+    }
     this.throwInterval = setStoppableInterval(() => {
-      this.x += 10;
+      this.x += 10 * direction;
     }, 25);
+  }
+
+  /**
+   * Resumes animation interval
+   */
+  resumeAnimationInterval() {
     this.animationInterval = setStoppableInterval(() => {
       if (this.hit) {
         this.playAnimation(this.BOTTLE_SPLASH_IMAGES);
@@ -123,6 +149,5 @@ class ThrowableObject extends MovableObject {
         this.playAnimation(this.BOTTLE_ROTATION_IMAGES);
       }
     }, 100);
-    this.resumeGravity();
   }
 }

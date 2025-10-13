@@ -13,9 +13,6 @@ class Character extends MovableObject {
     'img_pollo_locco/img/2_character_pepe/2_walk/W-26.png',
   ];
   IMAGES_JUMPING = [
-    'img_pollo_locco/img/2_character_pepe/3_jump/J-31.png',
-    'img_pollo_locco/img/2_character_pepe/3_jump/J-32.png',
-    'img_pollo_locco/img/2_character_pepe/3_jump/J-33.png',
     'img_pollo_locco/img/2_character_pepe/3_jump/J-34.png',
     'img_pollo_locco/img/2_character_pepe/3_jump/J-35.png',
     'img_pollo_locco/img/2_character_pepe/3_jump/J-36.png',
@@ -70,6 +67,7 @@ class Character extends MovableObject {
   animationInterval;
   deathAnimationComplete = false;
   isSleeping = false;
+  lastAnimation = null;
 
   /**
    * Creates an instance of Character
@@ -121,7 +119,7 @@ class Character extends MovableObject {
   handleMovement() {
     const moved = this.handleKeyboardInput();
     this.updateMovementTimer(moved);
-    this.collision.handleCollisionsAndCamera()
+    this.collision.handleCollisionsAndCamera();
   }
 
   /**
@@ -145,10 +143,22 @@ class Character extends MovableObject {
    * @returns {boolean} True if moved right
    */
   handleRightMovement() {
-    if (this.world.keyboard.Right && this.x < this.world.level.level_end_x) {
+    if (this.world.keyboard.Right && this.x < this.world.level.level_end_x && !this.isBlockedByEndboss()) {
       this.moveRight();
       this.OtherDirection = false;
       return true;
+    }
+    return false;
+  }
+
+  /**
+   * Checks if the character is blocked by the endboss
+   * @returns {boolean} True if movement to the right is blocked
+   */
+  isBlockedByEndboss() {
+    const endboss = this.world.level.enemies.find((enemy) => enemy instanceof Endboss);
+    if (endboss && !endboss.isDead) {
+      return this.collision.isColliding(endboss);
     }
     return false;
   }
@@ -204,7 +214,7 @@ class Character extends MovableObject {
    */
   animate() {
     this.movementInterval = setStoppableInterval(() => this.handleMovement(), 1000 / 144);
-    this.animationInterval = setStoppableInterval(() => this.animator.handleAnimation(), 150);
+    this.animationInterval = setStoppableInterval(() => this.animation.handleAnimation(), 150);
   }
 
   /**
@@ -221,7 +231,7 @@ class Character extends MovableObject {
    */
   resumeAnimations() {
     this.movementInterval = setStoppableInterval(() => this.handleMovement(), 1000 / 144);
-    this.animationInterval = setStoppableInterval(() => this.animator.handleAnimation(), 150);
+    this.animationInterval = setStoppableInterval(() => this.animation.handleAnimation(), 150);
     this.resumeGravity();
   }
 }

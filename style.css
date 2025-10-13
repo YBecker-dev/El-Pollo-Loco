@@ -547,9 +547,9 @@ h1 {
 /* Left Side: Virtual Joystick Area */
 .joystick-area {
     position: absolute;
-    left: 0;
+    left: 10%;
     top: 0;
-    width: 50%;
+    width: 80%;
     height: 100%;
     pointer-events: auto;
     touch-action: none;

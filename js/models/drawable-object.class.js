@@ -108,11 +108,10 @@ class DrawableObject {
 
   /**
    * Determines if hitbox should be drawn for this object
-   * @returns {boolean} True if object is Chicken, Character, or Coin
+   * @returns {boolean} False - debug hitboxes are disabled
    */
   shouldDrawHitbox() {
-    const result = this instanceof Chicken || this instanceof Character || this instanceof Coin;
-    return result;
+    return false;
   }
 
   /**

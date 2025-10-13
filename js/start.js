@@ -12,54 +12,30 @@ function initStartScreen() {
   };
 
   initBackgroundMusic();
+  initHoverSound();
+  updateSoundButtonIcons();
 
   showStartMenu();
   setupClickOutsideMenus();
 }
 
 /**
- * Initializes the background music for the game.
+ * Initializes the hover sound effect for buttons
+ */
+function initHoverSound() {
+  if (!soundManager.sounds['hover']) {
+    soundManager.addSound('hover', 'audio/startscreen/hover/hover-buttons.mp3');
+  }
+}
+
+/**
+ * Initializes the background music audio object (but doesn't play it)
  */
 function initBackgroundMusic() {
-  createBackgroundMusicIfNeeded();
-  setupAutoplayWorkaround();
-}
-
-/**
- * Creates the background music audio object if it doesn't already exist.
- */
-function createBackgroundMusicIfNeeded() {
-  if (!soundManager.backgroundMusic) {
-    soundManager.backgroundMusic = new Audio('audio/Gameplay/background/background.wav');
-    soundManager.backgroundMusic.loop = true;
-    soundManager.backgroundMusic.volume = soundManager.volume;
+  if (!soundManager.sounds['background']) {
+    soundManager.addSound('background', 'audio/Gameplay/background/background.wav');
+    soundManager.sounds['background'].loop = true;
   }
-}
-
-/**
- * Sets up event listeners to handle autoplay restrictions for background music.
- */
-function setupAutoplayWorkaround() {
-  document.addEventListener('click', startBackgroundMusicOnInteraction, { once: true });
-  document.addEventListener('keydown', startBackgroundMusicOnInteraction, { once: true });
-}
-
-/**
- * Starts the background music on user interaction if not muted and paused.
- */
-function startBackgroundMusicOnInteraction() {
-  if (!soundManager.isMuted && soundManager.backgroundMusic.paused) {
-    soundManager.backgroundMusic.play().catch(() => {});
-  }
-  removeAutoplayListeners();
-}
-
-/**
- * Removes the autoplay workaround event listeners.
- */
-function removeAutoplayListeners() {
-  document.removeEventListener('click', startBackgroundMusicOnInteraction);
-  document.removeEventListener('keydown', startBackgroundMusicOnInteraction);
 }
 
 /**
@@ -87,15 +63,27 @@ function hideAllMenus() {
  */
 function startGame() {
   hideAllMenus();
-
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   toggleMobileControlsVisibility(true);
-  document.getElementById('soundButtonGame').classList.add('show');
-  updateSoundButtonIcons();
-
+  showGameUI();
+  startGameplayMusic();
   initLevel();
   init();
+}
+
+/**
+ * Shows game UI elements
+ */
+function showGameUI() {
+  document.getElementById('soundButtonGame').classList.add('show');
+  updateSoundButtonIcons();
+}
+
+/**
+ * Starts gameplay background music
+ */
+function startGameplayMusic() {
+  soundManager.startBackgroundMusic();
 }
 
 /**
@@ -119,13 +107,15 @@ function hideGameEndUIElements() {
 }
 
 /**
- * Resets the game state by stopping intervals, clearing canvas, reinitializing level, and resuming background music.
+ * Resets the game state by stopping intervals, clearing canvas, reinitializing level, and stopping background music.
  */
 function resetGameState() {
   stopGame();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   initLevel();
-  soundManager.resumeBackgroundMusic();
+  soundManager.stopBackgroundMusic();
+  soundManager.resetEndbossMusic();
+  world = null;
 }
 
 /**
@@ -135,6 +125,33 @@ function resetGameState() {
 function setupClickOutsideMenus() {
   const menuContainer = document.getElementById('menuContainer');
   menuContainer.addEventListener('click', handleMenuOutsideClick);
+  setupAllButtonHoverSounds();
+}
+
+/**
+ * Sets up hover sound effects for all interactive buttons across all menus.
+ */
+function setupAllButtonHoverSounds() {
+  const buttonSelectors = [
+    '.play-button',
+    '.back-button',
+    '#soundToggle',
+    '.icon-button'
+  ];
+
+  buttonSelectors.forEach(selector => {
+    const buttons = document.querySelectorAll(selector);
+    buttons.forEach(button => {
+      button.addEventListener('mouseenter', playHoverSound);
+    });
+  });
+}
+
+/**
+ * Plays the hover sound effect when a button is hovered.
+ */
+function playHoverSound() {
+  soundManager.playSound('hover');
 }
 
 /**

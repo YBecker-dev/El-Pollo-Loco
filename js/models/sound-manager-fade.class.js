@@ -89,7 +89,8 @@ class SoundManagerFade {
       return;
     }
     const params = this.setupCrossfadeParams(duration);
-    this.executeCrossfade(this.soundManager.backgroundMusic, this.soundManager.sounds[toSoundName], params);
+    const bgMusic = this.soundManager.sounds['background'];
+    this.executeCrossfade(bgMusic, this.soundManager.sounds[toSoundName], params);
   }
 
   /**
@@ -98,11 +99,12 @@ class SoundManagerFade {
    * @param {number} [duration=1000] - Duration of crossfade in milliseconds
    */
   crossfadeSoundToBackground(fromSoundName, duration = 1000) {
-    if (!this.soundManager.sounds[fromSoundName] || !this.soundManager.backgroundMusic) {
+    const bgMusic = this.soundManager.sounds['background'];
+    if (!this.soundManager.sounds[fromSoundName] || !bgMusic) {
       return;
     }
     const params = this.setupCrossfadeParams(duration);
-    this.executeCrossfade(this.soundManager.sounds[fromSoundName], this.soundManager.backgroundMusic, params);
+    this.executeCrossfade(this.soundManager.sounds[fromSoundName], bgMusic, params);
   }
 
   /**
