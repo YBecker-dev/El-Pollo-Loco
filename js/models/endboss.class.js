@@ -4,10 +4,6 @@
  * @extends MovableObject
  */
 class Endboss extends MovableObject {
-  height = 500;
-  width = 300;
-  y = -30;
-
   IMAGES_WALKING = [
     'img_pollo_locco/img/4_enemie_boss_chicken/1_walk/G1.png',
     'img_pollo_locco/img/4_enemie_boss_chicken/1_walk/G2.png',
@@ -48,7 +44,10 @@ class Endboss extends MovableObject {
     'img_pollo_locco/img/4_enemie_boss_chicken/5_dead/G25.png',
     'img_pollo_locco/img/4_enemie_boss_chicken/5_dead/G26.png',
   ];
-
+  
+  height = 500;
+  width = 300;
+  y = -30;
   world;
   health = 5;
   isHurt = false;

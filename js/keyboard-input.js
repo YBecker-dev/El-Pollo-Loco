@@ -1,8 +1,4 @@
 /**
- * Keyboard Input Module - Handles keyboard event listeners and mappings
- */
-
-/**
  * Mapping of keyboard keys to game actions for input handling.
  */
 const keyMap = {
