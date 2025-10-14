@@ -6,6 +6,7 @@ class WorldRenderer {
   /**
    * Creates an instance of WorldRenderer
    * @constructor
+   * @param {World} world - The World instance to render
    */
   constructor(world) {
     this.world = world;

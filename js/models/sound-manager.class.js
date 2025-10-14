@@ -3,6 +3,10 @@
  * @class
  */
 class SoundManager {
+  /**
+   * Initializes the SoundManager with default settings
+   * @constructor
+   */
   constructor() {
     this.sounds = {};
     this.isPaused = false;

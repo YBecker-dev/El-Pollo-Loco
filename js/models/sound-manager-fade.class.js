@@ -4,6 +4,7 @@
  */
 class SoundManagerFade {
   /**
+   * Initializes the SoundManagerFade module
    * @param {SoundManager} soundManager - The SoundManager instance
    */
   constructor(soundManager) {

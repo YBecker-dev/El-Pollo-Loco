@@ -4,6 +4,7 @@
  */
 class CharacterCollision {
   /**
+   * Initializes the CharacterCollision module
    * @param {Character} character - The Character instance
    */
   constructor(character) {

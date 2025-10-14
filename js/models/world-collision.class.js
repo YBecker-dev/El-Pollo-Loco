@@ -1,10 +1,11 @@
 /**
  * World Collision Module - Handles collision detection and damage logic
  * This file extends the World class with collision-related methods.
+ * @class
  */
-
 class WorldCollision {
   /**
+   * Initializes the WorldCollision module
    * @param {World} world - The World instance
    */
   constructor(world) {
