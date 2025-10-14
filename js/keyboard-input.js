@@ -37,7 +37,7 @@ window.addEventListener('keyup', (event) => {
     keyboard[key] = false;
   }
 
-  if (event.key === 'Escape' && world && world.character && !world.levelCompleted && !world.character.isdead) {
+  if (event.key === 'Escape' && world && world.character && !world.levelCompleted && !world.character.isdead && !isEndbossDefeated()) {
     togglePauseMenu();
   }
 });

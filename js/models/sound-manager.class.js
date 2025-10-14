@@ -81,7 +81,10 @@ class SoundManager {
    * @param {string} name - Name of the sound to play
    */
   playSound(name) {
-    if (!this.isPaused && !this.isGameOver && this.sounds[name]) {
+    const isPauseOrUnpauseSound = (name === 'pause' || name === 'unpause');
+    const canPlaySound = isPauseOrUnpauseSound || (!this.isPaused && !this.isGameOver);
+
+    if (canPlaySound && this.sounds[name]) {
       const sound = this.sounds[name];
       sound.currentTime = 0;
       if (this.isMuted) {
@@ -105,11 +108,30 @@ class SoundManager {
   }
 
   /**
-   * Plays pause sound (alias for playSound)
-   * @param {string} name - Name of the pause sound
+   * Plays a looping sound
+   * @param {string} name - Name of the sound to play
    */
-  playPauseSound(name) {
-    this.playSound(name);
+  playLoopingSound(name) {
+    if (!this.isMuted && this.sounds[name]) {
+      const sound = this.sounds[name];
+      sound.loop = true;
+      sound.currentTime = 0;
+      sound.volume = this.volume;
+      sound.play().catch(() => {});
+    }
+  }
+
+  /**
+   * Stops a looping sound
+   * @param {string} name - Name of the sound to stop
+   */
+  stopLoopingSound(name) {
+    if (this.sounds[name]) {
+      const sound = this.sounds[name];
+      sound.pause();
+      sound.currentTime = 0;
+      sound.loop = false;
+    }
   }
 
   /**
@@ -147,8 +169,10 @@ class SoundManager {
   /**
    * Starts background music if it's not currently playing
    * and no other background music is playing
+   * Only starts if the game is running (world exists)
    */
   startBackgroundMusicIfNotPlaying() {
+    if (typeof world === 'undefined' || !world) return;
     const bgMusic = this.sounds['background'];
     if (!bgMusic) return;
     if (this.isAnyBackgroundMusicSoundPlaying()) return;
@@ -227,17 +251,19 @@ class SoundManager {
   }
 
   /**
-   * Pauses the game (only effect sounds, not background music)
+   * Pauses the game and all background music
    */
   pauseGame() {
     this.isPaused = true;
+    this.pauseAllBackgroundMusic();
   }
 
   /**
-   * Resumes the game (effect sounds only)
+   * Resumes the game and all background music
    */
   resumeGame() {
     this.isPaused = false;
+    this.resumeAllBackgroundMusic();
   }
 
   /**
@@ -258,7 +284,7 @@ class SoundManager {
 
 
   /**
-   * Stops all background music sounds (background, sleeping, endbossAlert, etc.)
+   * Stops all background music sounds
    */
   stopBackgroundMusic() {
     this.backgroundMusicSounds.forEach((name) => {

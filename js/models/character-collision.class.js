@@ -46,11 +46,37 @@ class CharacterCollision {
    */
   calculateHitbox(obj) {
     const offsets = this.getOffsetsForObj(obj);
+    return this.buildHitbox(obj.x, obj.y, obj.width, obj.height, offsets);
+  }
+
+  /**
+   * Builds hitbox object with calculated dimensions
+   * @param {number} x - X position
+   * @param {number} y - Y position
+   * @param {number} width - Object width
+   * @param {number} height - Object height
+   * @param {Object} offsets - Offset values
+   * @returns {Object} Hitbox with x, y, width, and height
+   */
+  buildHitbox(x, y, width, height, offsets) {
+    const { offsetLeft, offsetRight } = this.getHorizontalOffsets(offsets);
     return {
-      x: obj.x + offsets.offsetX,
-      y: obj.y + offsets.offsetYTop,
-      width: obj.width - 2 * offsets.offsetX,
-      height: obj.height - offsets.offsetYTop - offsets.offsetYBottom,
+      x: x + offsetLeft,
+      y: y + offsets.offsetYTop,
+      width: width - offsetLeft - offsetRight,
+      height: height - offsets.offsetYTop - offsets.offsetYBottom,
+    };
+  }
+
+  /**
+   * Calculates left and right horizontal offsets
+   * @param {Object} offsets - Offset object
+   * @returns {Object} Object with offsetLeft and offsetRight
+   */
+  getHorizontalOffsets(offsets) {
+    return {
+      offsetLeft: offsets.offsetLeft ?? offsets.offsetX,
+      offsetRight: offsets.offsetRight ?? offsets.offsetX,
     };
   }
 
@@ -73,12 +99,13 @@ class CharacterCollision {
    */
   getHitbox() {
     const offsets = this.getHitboxOffsets();
-    return {
-      x: this.character.x + offsets.offsetX,
-      y: this.character.y + offsets.offsetYTop,
-      width: this.character.width - 2 * offsets.offsetX,
-      height: this.character.height - offsets.offsetYTop - offsets.offsetYBottom,
-    };
+    return this.buildHitbox(
+      this.character.x,
+      this.character.y,
+      this.character.width,
+      this.character.height,
+      offsets
+    );
   }
 
   /**

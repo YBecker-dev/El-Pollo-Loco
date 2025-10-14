@@ -33,7 +33,7 @@ class WorldCollision {
     return (
       this.world.keyboard.F &&
       this.world.collectedBottles > 0 &&
-      timeSinceLastThrow > 300 &&
+      timeSinceLastThrow > 1500 &&
       !this.world.character.isHurt()
     );
   }
@@ -49,6 +49,7 @@ class WorldCollision {
     soundManager.playSound('bottleThrow');
     this.world.collectedBottles--;
     this.world.lastThrowTime = currentTime;
+    this.world.cooldownBar.startCooldown();
     const percentage = Math.min(this.world.collectedBottles * 20, 100);
     this.world.statusBarBottle.setPercentage(percentage);
   }

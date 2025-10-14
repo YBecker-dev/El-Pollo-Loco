@@ -221,7 +221,8 @@ class Endboss extends MovableObject {
   moveTowardsPlayer() {
     if (this.isVisible && !this.isDead && this.world && this.world.character) {
       const characterX = this.world.character.x;
-      if (this.x > characterX + 100) {
+      const minDistance = this.width * 0.2;
+      if (this.x > characterX + minDistance) {
         const currentSpeed = this.getCurrentSpeed();
         this.x -= currentSpeed;
       }
@@ -269,5 +270,18 @@ class Endboss extends MovableObject {
    */
   resumeAnimations() {
     this.animate();
+  }
+
+  /**
+   * Gets endboss-specific hitbox offsets
+   * @returns {Object} Offset values for endboss
+   */
+  getHitboxOffsets() {
+    return {
+      offsetLeft: this.width * 0.15,
+      offsetRight: this.width * 0.15,
+      offsetYTop: this.height * 0.1,
+      offsetYBottom: this.height * 0.05,
+    };
   }
 }

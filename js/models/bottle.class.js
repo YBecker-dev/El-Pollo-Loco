@@ -16,4 +16,17 @@ class Bottle extends CollectableObject {
     this.width = 80;
     this.height = 80;
   }
+
+  /**
+   * Gets bottle-specific hitbox offsets
+   * @returns {Object} Offset values for bottle
+   */
+  getHitboxOffsets() {
+    return {
+      offsetLeft: this.width * 0.65,
+      offsetRight: this.width * 0.4,
+      offsetYTop: this.height * 0.15,
+      offsetYBottom: this.height * 0.075,
+    };
+  }
 }

@@ -51,6 +51,7 @@ function toggleMobileControlsVisibility(show) {
   const mobileControls = document.getElementById('mobileControls');
   if (show && window.innerWidth <= 1370) {
     mobileControls.classList.remove('d-none');
+    showInitialJoystick();
   } else {
     mobileControls.classList.add('d-none');
   }
@@ -74,7 +75,7 @@ function setupMobileControls() {
 function showInitialJoystick() {
   const joystickArea = document.getElementById('joystickArea');
   const rect = joystickArea.getBoundingClientRect();
-  const initialX = 150;
+  const initialX = 75;
   const initialY = rect.height - 75;
 
   const base = document.getElementById('joystickBase');
@@ -147,7 +148,7 @@ function handleJoystickTouchEnd(event) {
   if (!joystickActive) return;
 
   if (isCurrentTouchEnded(event)) {
-    resetJoystickToInitialPosition();
+    showInitialJoystick();
     resetJoystickState();
   }
 }
@@ -252,24 +253,6 @@ function isCurrentTouchEnded(event) {
     }
   }
   return false;
-}
-
-/**
- * Resets the joystick to its initial position (bottom-left area).
- */
-function resetJoystickToInitialPosition() {
-  const joystickArea = document.getElementById('joystickArea');
-  const rect = joystickArea.getBoundingClientRect();
-  const initialX = 250;
-  const initialY = rect.height - 75;
-
-  const base = document.getElementById('joystickBase');
-  const stick = document.getElementById('joystickStick');
-
-  base.style.left = initialX + 'px';
-  base.style.top = initialY + 'px';
-  stick.style.left = initialX + 'px';
-  stick.style.top = initialY + 'px';
 }
 
 /**

@@ -59,6 +59,7 @@ class WorldRenderer {
     this.drawEnemies();
     this.drawThrowableBottles();
     this.addtoMap(this.world.character);
+    this.drawCooldownBartThrowingBottle();
   }
 
   /**
@@ -190,6 +191,13 @@ class WorldRenderer {
     this.world.throwableObjects.forEach((bottle) => {
       this.addtoMap(bottle);
     });
+  }
+
+  /**
+   * Updates cooldown bar position next to character
+   */
+  drawCooldownBartThrowingBottle() {
+    this.world.cooldownBar.update(this.world.character.x, this.world.character.y, this.world.camera_x);
   }
 
   /**

@@ -131,4 +131,17 @@ class Chicken extends MovableObject {
   resumeAnimations() {
     this.animate();
   }
+
+  /**
+   * Gets bottle-specific hitbox offsets
+   * @returns {Object} Offset values for bottle
+   */
+  getHitboxOffsets() {
+    return {
+      offsetLeft: this.width * 0.2,
+      offsetRight: this.width * 0.4,
+      offsetYTop: this.height * 0.15,
+      offsetYBottom: this.height * 0.075,
+    };
+  }
 }

@@ -321,7 +321,7 @@ body {
 .steering-row {
     display: flex;
     justify-content: space-between;
-        border-bottom: solid 1px #555;
+    border-bottom: solid 1px #555;
 }
 
 .steering-text {
@@ -339,6 +339,14 @@ body {
 }
 
 /* Responsive Steering */
+@media only screen and (max-width: 1366px) {
+
+    .sound-button {
+        left: unset !important;
+        right: 20px !important;
+    }
+}
+
 @media only screen and (max-height: 600px) {
     .steering-container {
         padding: 20px 30px;
@@ -348,6 +356,7 @@ body {
     .steering-text {
         font-size: 16px;
     }
+
 }
 
 @media only screen and (max-width: 480px) {
@@ -547,9 +556,9 @@ h1 {
 /* Left Side: Virtual Joystick Area */
 .joystick-area {
     position: absolute;
-    left: 10%;
+    right: 10%;
     top: 0;
-    width: 80%;
+    width: 90%;
     height: 100%;
     pointer-events: auto;
     touch-action: none;
@@ -967,4 +976,45 @@ h1 {
 
 #soundButtonGame.show {
     display: flex;
+}
+
+/* Cooldown Bar */
+.cooldown-bar {
+    position: absolute;
+    width: 80px;
+    height: 6px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 3px;
+    overflow: hidden;
+    z-index: 600;
+    transition: opacity 0.2s ease;
+}
+
+.cooldown-bar-fill {
+    width: 0%;
+    height: 100%;
+    background-color: rgba(255, 140, 0, 0.9);
+    transition: width 0.05s linear;
+}
+
+.cooldown-bar-fixed {
+    position: absolute;
+    left: 162px;
+    bottom: 30px;
+    transform: translateX(-50%);
+    z-index: 200;
+}
+
+.cooldown-bar-fadeout {
+    animation: cooldownBarFadeOut 0.4s forwards;
+}
+
+@keyframes cooldownBarFadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
 }

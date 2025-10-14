@@ -79,9 +79,22 @@ function initializeSounds() {
  * Toggles the pause state of the game world if a world instance exists.
  */
 function togglePause() {
-  if (world) {
+  if (world && !isEndbossDefeated()) {
     world.togglePause();
   }
+}
+
+/**
+ * Checks if the endboss has been defeated or is dying
+ * @returns {boolean} True if endboss has no health left
+ */
+function isEndbossDefeated() {
+  if (!world || !world.level || !world.level.enemies) {
+    return false;
+  }
+  return world.level.enemies.some((enemy) => {
+    return enemy instanceof Endboss && enemy.health <= 0;
+  });
 }
 
 /**
@@ -137,12 +150,14 @@ function updateSoundButtonIcons() {
   const iconPause = document.getElementById('soundIconPause');
   const iconGameEnd = document.getElementById('soundIconGameEnd');
   const iconGame = document.getElementById('soundIconGame');
+  const iconStartscreen = document.getElementById('soundIconStartscreen');
 
   const iconSrc = getSoundIconPath();
 
   if (iconPause) iconPause.src = iconSrc;
   if (iconGameEnd) iconGameEnd.src = iconSrc;
   if (iconGame) iconGame.src = iconSrc;
+  if (iconStartscreen) iconStartscreen.src = iconSrc;
 }
 
 /**

@@ -224,6 +224,7 @@ class Character extends MovableObject {
     clearStoppableInterval(this.movementInterval);
     clearStoppableInterval(this.animationInterval);
     this.pauseGravity();
+    this.pauseIdleTimer();
   }
 
   /**
@@ -233,5 +234,37 @@ class Character extends MovableObject {
     this.movementInterval = setStoppableInterval(() => this.handleMovement(), 1000 / 144);
     this.animationInterval = setStoppableInterval(() => this.animation.handleAnimation(), 150);
     this.resumeGravity();
+    this.resumeIdleTimer();
+  }
+
+  /**
+   * Pauses the idle timer by storing pause start time
+   */
+  pauseIdleTimer() {
+    this.pauseStartTime = new Date().getTime();
+  }
+
+  /**
+   * Resumes the idle timer by adjusting lastMovementTime
+   */
+  resumeIdleTimer() {
+    if (this.pauseStartTime) {
+      const pauseDuration = new Date().getTime() - this.pauseStartTime;
+      this.lastMovementTime += pauseDuration;
+      this.pauseStartTime = null;
+    }
+  }
+
+  /**
+   * Gets character-specific hitbox offsets
+   * @returns {Object} Offset values for character
+   */
+  getHitboxOffsets() {
+    return {
+      offsetLeft: this.width * 0.15,
+      offsetRight: this.width * 0.15,
+      offsetYTop: this.height * 0.35,
+      offsetYBottom: this.height * 0.03,
+    };
   }
 }

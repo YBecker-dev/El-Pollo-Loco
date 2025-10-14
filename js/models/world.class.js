@@ -18,6 +18,7 @@ class World {
   statusBarCoin = new StatusBarCoin();
   statusBarBottle = new StatusBarBottle();
   statusBarEndboss = new StatusBarEndboss();
+  cooldownBar = new CooldownBar();
   throwableObjects = [];
   collectedBottles = 0;
   lastThrowTime = 0;
@@ -119,7 +120,7 @@ class World {
   pauseGame() {
     this.pauseWorldIntervals();
     this.pauseAllGameObjects();
-    soundManager.playPauseSound('pause');
+    soundManager.playSound('pause');
     soundManager.pauseGame();
   }
 

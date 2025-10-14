@@ -65,6 +65,22 @@ class DrawableObject {
    * @returns {Object} Object containing offsetX, offsetYTop, and offsetYBottom
    */
   getCoinHitboxOffsets() {
+    return this.getCollectableHitboxOffsets();
+  }
+
+  /**
+   * Gets hitbox offset values for bottle objects
+   * @returns {Object} Object containing offsetX, offsetYTop, and offsetYBottom
+   */
+  getBottleHitboxOffsets() {
+    return this.getCollectableHitboxOffsets();
+  }
+
+  /**
+   * Gets hitbox offset values for collectable objects (coins & bottles)
+   * @returns {Object} Object containing offsetX, offsetYTop, and offsetYBottom
+   */
+  getCollectableHitboxOffsets() {
     return {
       offsetX: this.width * 0.3,
       offsetYTop: this.height * 0.3,
@@ -78,16 +94,37 @@ class DrawableObject {
    * @param {Object} offsets - Hitbox offset values
    */
   drawHitbox(ctx, offsets) {
-    const hitboxX = this.x + offsets.offsetX;
-    const hitboxY = this.y + offsets.offsetYTop;
-    const hitboxWidth = this.width - 2 * offsets.offsetX;
-    const hitboxHeight = this.height - offsets.offsetYTop - offsets.offsetYBottom;
+    const dimensions = this.calculateHitboxDimensions(offsets);
+    this.renderHitboxRect(ctx, dimensions);
+  }
 
+  /**
+   * Calculates hitbox dimensions based on offsets
+   * @param {Object} offsets - Hitbox offset values
+   * @returns {Object} Hitbox dimensions (x, y, width, height)
+   */
+  calculateHitboxDimensions(offsets) {
+    const offsetLeft = offsets.offsetLeft ?? offsets.offsetX;
+    const offsetRight = offsets.offsetRight ?? offsets.offsetX;
+    return {
+      x: this.x + offsetLeft,
+      y: this.y + offsets.offsetYTop,
+      width: this.width - offsetLeft - offsetRight,
+      height: this.height - offsets.offsetYTop - offsets.offsetYBottom,
+    };
+  }
+
+  /**
+   * Renders hitbox rectangle on canvas
+   * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+   * @param {Object} dimensions - Hitbox dimensions
+   */
+  renderHitboxRect(ctx, dimensions) {
     ctx.save();
     ctx.beginPath();
     ctx.lineWidth = 3;
     ctx.strokeStyle = 'red';
-    ctx.rect(hitboxX, hitboxY, hitboxWidth, hitboxHeight);
+    ctx.rect(dimensions.x, dimensions.y, dimensions.width, dimensions.height);
     ctx.stroke();
     ctx.restore();
   }
@@ -97,6 +134,7 @@ class DrawableObject {
    * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
    */
   drawFrame(ctx) {
+    return;
     const shouldDraw = this.shouldDrawHitbox();
     if (shouldDraw) {
       const offsets = this.getHitboxOffsets();
@@ -108,27 +146,17 @@ class DrawableObject {
 
   /**
    * Determines if hitbox should be drawn for this object
-   * @returns {boolean} False - debug hitboxes are disabled
+   * @returns {boolean} True only for objects that need collision detection
    */
   shouldDrawHitbox() {
-    return false;
-  }
-
-  /**
-   * Gets the appropriate hitbox offsets based on object type
-   * @returns {Object} Object containing offsetX, offsetYTop, and offsetYBottom
-   */
-  getHitboxOffsets() {
-    if (this instanceof Character) {
-      return this.getCharacterHitboxOffsets();
-    }
-    if (this instanceof Chicken) {
-      return this.getChickenHitboxOffsets();
-    }
-    if (this instanceof Coin) {
-      return this.getCoinHitboxOffsets();
-    }
-    return { offsetX: 0, offsetYTop: 0, offsetYBottom: 0 };
+    return (
+      this instanceof Character ||
+      this instanceof Chicken ||
+      this instanceof Endboss ||
+      this instanceof Coin ||
+      this instanceof Bottle ||
+      this instanceof ThrowableObject
+    );
   }
 
   /**

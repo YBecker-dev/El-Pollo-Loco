@@ -16,6 +16,7 @@
     <script src="js/models/status-bar-coin.class.js"></script>
     <script src="js/models/status-bar-bottle.class.js"></script>
     <script src="js/models/status-bar-endboss.class.js"></script>
+    <script src="js/models/cooldown-bar.class.js"></script>
     <script src="js/models/movable-objects.js"></script>
     <script src="js/models/keyboard.class.js"></script>
     <script src="js/models/cloud.class.js"></script>
@@ -47,7 +48,11 @@
     <h1 id="title">El Pollo Loco</h1>
 
     <div id="gameContainer">
-      <canvas id="canvas" width="720" height="480"></canvas>
+      <canvas id="canvas" width="720" height="480"> </canvas>
+
+      <div id="cooldownBar" class="cooldown-bar d-none">
+        <div id="cooldownBarFill" class="cooldown-bar-fill"></div>
+      </div>
 
       <div id="menuContainer">
         <div id="startMenu" class="menu-screen">
@@ -63,7 +68,7 @@
 
           <div class="corner-buttons top-right">
             <button class="icon-button" onclick="showOptions()" title="Options">
-              <img src="/img_pollo_locco/img/homescreen-icons/volume.png" alt="" />
+              <img id="soundIconStartscreen" alt="" />
             </button>
           </div>
 
@@ -93,7 +98,9 @@
               <span id="volumeValue" class="volume-value">100%</span>
             </div>
             <div class="option-row-button">
-              <button class="menu-button back-button" title="option-back" onclick="backToStartWithAnimation()">Back</button>
+              <button class="menu-button back-button" title="option-back" onclick="backToStartWithAnimation()">
+                Back
+              </button>
             </div>
           </div>
         </div>
@@ -124,7 +131,9 @@
               </div>
             </div>
             <div class="steering-row-button">
-              <button class="menu-button back-button" title="steering-back" onclick="backToStartWithAnimation()">Back</button>
+              <button class="menu-button back-button" title="steering-back" onclick="backToStartWithAnimation()">
+                Back
+              </button>
             </div>
           </div>
         </div>
